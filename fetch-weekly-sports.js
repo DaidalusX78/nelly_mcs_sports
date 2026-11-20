@@ -250,7 +250,23 @@ async function fetchText(url, headers = {}) {
 }
 
 function isRealApiKey(key) {
-  return Boolean(key && !key.startsWith('your_api_sports_key'));
+  return Boolean(key && !key.startsWith('your_'));
+}
+
+async function mapWithConcurrency(items, limit, fn) {
+  const results = new Array(items.length);
+  let nextIdx = 0;
+
+  async function worker() {
+    while (nextIdx < items.length) {
+      const idx = nextIdx++;
+      results[idx] = await fn(items[idx], idx);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(limit, items.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
 }
 
 // ---------------------------------------------------------------------------
@@ -278,6 +294,8 @@ async function fetchApiFootball(fromDate, toDate, apiKey) {
   const clubSeason = month >= 7 ? year : year - 1;
   const headers = { 'x-apisports-key': apiKey };
 
+  let planLimited = false;
+
   for (const league of TARGET_FOOTBALL_LEAGUES) {
     const season = league.isTournament ? year : clubSeason;
     const url = `https://v3.football.api-sports.io/fixtures?league=${league.id}&season=${season}&from=${fromDate}&to=${toDate}&timezone=${encodeURIComponent(MADRID_TZ)}`;
@@ -285,7 +303,11 @@ async function fetchApiFootball(fromDate, toDate, apiKey) {
     try {
       const data = await fetchJson(url, headers);
       if (data.errors && Object.keys(data.errors).length > 0) {
-        warnings.push(`API-Football (${league.name}): ${JSON.stringify(data.errors)}`);
+        if (data.errors.plan) {
+          planLimited = true;
+        } else {
+          warnings.push(`API-Football (${league.name}): ${JSON.stringify(data.errors)}`);
+        }
         continue;
       }
 
@@ -317,6 +339,10 @@ async function fetchApiFootball(fromDate, toDate, apiKey) {
     }
   }
 
+  if (planLimited) {
+    warnings.push('API-Football Free plan covers rolling 3-day window; remaining week dates covered by ESPN.');
+  }
+
   return { events, warnings };
 }
 
@@ -336,6 +362,7 @@ async function fetchApiRugby(fromDate, toDate, apiKey) {
   const events = [];
   const warnings = [];
   const headers = { 'x-apisports-key': apiKey };
+  let planLimitedDays = 0;
 
   for (let i = 0; i < 7; i++) {
     const day = addDaysISO(fromDate, i);
@@ -344,7 +371,11 @@ async function fetchApiRugby(fromDate, toDate, apiKey) {
     try {
       const data = await fetchJson(url, headers);
       if (data.errors && Object.keys(data.errors).length > 0) {
-        warnings.push(`API-Rugby (${day}): ${JSON.stringify(data.errors)}`);
+        if (data.errors.plan) {
+          planLimitedDays++;
+        } else {
+          warnings.push(`API-Rugby (${day}): ${JSON.stringify(data.errors)}`);
+        }
         continue;
       }
 
@@ -373,6 +404,10 @@ async function fetchApiRugby(fromDate, toDate, apiKey) {
     } catch (err) {
       warnings.push(`API-Rugby (${day}) failed: ${err.message}`);
     }
+  }
+
+  if (planLimitedDays > 0) {
+    warnings.push(`API-Rugby Free plan skipped ${planLimitedDays} out-of-window day(s); full week covered by ESPN.`);
   }
 
   return { events, warnings };
@@ -496,28 +531,38 @@ async function fetchEspnGolf(fromDate, toDate) {
   return { events, warnings };
 }
 
-async function fetchEspnFallbackTeamSports(fromDate, toDate, needFootball, needRugby) {
+async function fetchEspnTeamSports(fromDate) {
   const events = [];
   const warnings = [];
-  const queries = [];
+  const leagues = [
+    { sportPath: 'soccer', leagueSlug: 'eng.1', sport: 'Football', competition: 'English Premier League' },
+    { sportPath: 'soccer', leagueSlug: 'uefa.champions', sport: 'Football', competition: 'UEFA Champions League' },
+    { sportPath: 'soccer', leagueSlug: 'uefa.europa', sport: 'Football', competition: 'UEFA Europa League' },
+    { sportPath: 'soccer', leagueSlug: 'uefa.europa.conf', sport: 'Football', competition: 'UEFA Conference League' },
+    { sportPath: 'soccer', leagueSlug: 'sco.1', sport: 'Football', competition: 'Scottish Premiership', oldFirmOnly: true },
+    { sportPath: 'soccer', leagueSlug: 'uefa.nations', sport: 'Football', competition: 'UEFA Nations League' },
+    { sportPath: 'soccer', leagueSlug: 'fifa.world', sport: 'Football', competition: 'FIFA World Cup' },
+    { sportPath: 'soccer', leagueSlug: 'uefa.euro', sport: 'Football', competition: 'UEFA European Championship' },
+    { sportPath: 'rugby', leagueSlug: '289234', sport: 'Rugby Union', competition: 'Rugby Union Internationals' },
+    { sportPath: 'rugby', leagueSlug: '180659', sport: 'Rugby Union', competition: 'Six Nations' },
+    { sportPath: 'rugby', leagueSlug: '270557', sport: 'Rugby Union', competition: 'United Rugby Championship' },
+    { sportPath: 'rugby', leagueSlug: '271937', sport: 'Rugby Union', competition: 'European Rugby Champions Cup' },
+    { sportPath: 'rugby', leagueSlug: '164205', sport: 'Rugby Union', competition: 'Rugby World Cup' }
+  ];
 
-  if (needFootball) {
-    for (let i = 0; i < 7; i++) {
-      queries.push({
-        sportPath: 'soccer',
-        leagueSlug: 'eng.1',
-        dateParam: addDaysISO(fromDate, i).replace(/-/g, ''),
-        sport: 'Football',
-        competition: 'English Premier League'
-      });
+  const queries = [];
+  for (let i = 0; i < 7; i++) {
+    const dayStr = addDaysISO(fromDate, i);
+    const dateParam = dayStr.replace(/-/g, '');
+    for (const lg of leagues) {
+      queries.push({ ...lg, dateParam });
     }
   }
-  if (needRugby) {
-    queries.push({ sportPath: 'rugby', leagueSlug: 'six-nations', dateParam: '', sport: 'Rugby Union', competition: 'Six Nations' });
-    queries.push({ sportPath: 'rugby', leagueSlug: 'urc', dateParam: '', sport: 'Rugby Union', competition: 'United Rugby Championship' });
-  }
 
-  for (const feed of queries) {
+  const toDate = addDaysISO(fromDate, 6);
+  const failedSlugs = new Set();
+
+  await mapWithConcurrency(queries, 10, async feed => {
     try {
       const data = await fetchEspnScoreboard(feed.sportPath, feed.leagueSlug, feed.dateParam);
       for (const ev of data.events || []) {
@@ -530,6 +575,7 @@ async function fetchEspnFallbackTeamSports(fromDate, toDate, needFootball, needR
         const home = competitors.find(c => c.homeAway === 'home')?.team?.displayName || '';
         const away = competitors.find(c => c.homeAway === 'away')?.team?.displayName || '';
         if (!home || !away) continue;
+        if (feed.oldFirmOnly && !isOldFirmMatch(home, away)) continue;
 
         const venueObj = comp.venue || {};
         const venue = [venueObj.fullName, venueObj.address?.city].filter(Boolean).join(', ') || 'TBC';
@@ -543,23 +589,28 @@ async function fetchEspnFallbackTeamSports(fromDate, toDate, needFootball, needR
           venue,
           date: madrid.date,
           time_cet: madrid.time_cet,
-          status: 'not_started'
+          status: normalizeApiSportsStatus(comp.status?.type?.shortDetail) === 'finished' || comp.status?.type?.completed
+            ? 'finished'
+            : 'not_started'
         });
       }
     } catch (err) {
-      warnings.push(`ESPN Fallback (${feed.sportPath}/${feed.leagueSlug}) failed: ${err.message}`);
+      const tag = `${feed.sportPath}/${feed.leagueSlug}`;
+      if (!failedSlugs.has(tag)) {
+        failedSlugs.add(tag);
+        warnings.push(`ESPN (${tag}) failed: ${err.message}`);
+      }
     }
-  }
+  });
 
   return { events, warnings };
 }
 
 // ---------------------------------------------------------------------------
-// 4. Optional GAA .ics / iCal Feed Parser
+// 4. GAA Official eCal Widget & .ics / iCal Feed Parser
 // ---------------------------------------------------------------------------
 
-function parseIcsTimestampToMadrid(rawVal) {
-  // Supports YYYYMMDDTHHMMSSZ or YYYYMMDDTHHMMSS
+function parseIcsTimestampToMadrid(rawVal, tzid = '') {
   const cleaned = rawVal.trim();
   const match = cleaned.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)$/);
   if (!match) return null;
@@ -567,13 +618,54 @@ function parseIcsTimestampToMadrid(rawVal) {
   if (z === 'Z') {
     return toMadridDateTime(`${y}-${m}-${d}T${hh}:${mm}:${ss}Z`);
   }
+  const lowTz = (tzid || '').toLowerCase();
+  if (lowTz.includes('dublin') || lowTz.includes('london')) {
+    const dt = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d), Number(hh), Number(mm), Number(ss)));
+    const londonProbe = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London',
+      timeZoneName: 'shortOffset'
+    }).formatToParts(dt).find(p => p.type === 'timeZoneName')?.value || 'GMT';
+    const isBst = londonProbe.includes('+1');
+    const utcDt = new Date(dt.getTime() - (isBst ? 3600000 : 0));
+    return toMadridDateTime(utcDt);
+  }
   return {
     date: `${y}-${m}-${d}`,
     time_cet: `${hh}:${mm}`
   };
 }
 
-async function fetchGaaIcsFeeds(fromDate, toDate, icsUrlsRaw, userAgent) {
+async function discoverEcalIcsUrl(widgetUrl) {
+  if (!widgetUrl) return null;
+  const parsed = new URL(widgetUrl);
+  const widgetId = parsed.searchParams.get('widgetId');
+  const apiKey = parsed.searchParams.get('apiKey');
+  if (!widgetId || !apiKey) return null;
+
+  const calUrl = `https://api-cdn.ecal.com/apiv3/widget/button/${widgetId}/calendars?apiKey=${apiKey}`;
+  const calData = await fetchJson(calUrl, { apikey: apiKey });
+  const calendarIds = (calData.calendars || []).map(c => c.id).filter(Boolean);
+  if (calendarIds.length === 0) return null;
+
+  const subRes = await fetch(`https://api-cdn.ecal.com/apiv3/subscriber?apiKey=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: apiKey },
+    body: JSON.stringify({
+      subscriptionWidgetId: widgetId,
+      application: 'apple',
+      email: 'sports@nellymcs.com',
+      country: 'IE',
+      calendarIds
+    })
+  });
+  if (!subRes.ok) {
+    throw new Error(`eCal subscriber HTTP ${subRes.status}`);
+  }
+  const subJson = await subRes.json();
+  return subJson?.calendarURL?.httpsCalUrl || null;
+}
+
+async function fetchGaaEcalAndIcs(fromDate, toDate, icsUrlsRaw, widgetUrl, userAgent) {
   const events = [];
   const warnings = [];
   const urls = (icsUrlsRaw || '')
@@ -581,24 +673,49 @@ async function fetchGaaIcsFeeds(fromDate, toDate, icsUrlsRaw, userAgent) {
     .map(s => s.trim())
     .filter(Boolean);
 
+  if (widgetUrl && urls.length === 0) {
+    try {
+      const discovered = await discoverEcalIcsUrl(widgetUrl);
+      if (discovered) urls.push(discovered);
+    } catch (err) {
+      warnings.push(`GAA eCal discovery failed: ${err.message}`);
+    }
+  } else if (widgetUrl) {
+    try {
+      const parsed = new URL(widgetUrl);
+      const widgetId = parsed.searchParams.get('widgetId');
+      const apiKey = parsed.searchParams.get('apiKey');
+      if (widgetId && apiKey) {
+        await fetchJson(`https://api-cdn.ecal.com/apiv3/widget/button/${widgetId}/calendars?apiKey=${apiKey}`, { apikey: apiKey });
+      }
+    } catch (err) {
+      warnings.push(`GAA eCal widget check failed: ${err.message}`);
+    }
+  }
+
   for (const url of urls) {
     try {
-      const text = await fetchText(url, { 'User-Agent': userAgent });
+      let text = await fetchText(url, { 'User-Agent': userAgent });
+      if (text.includes('X-Built-On-Cache-Miss:true') && !text.includes('BEGIN:VEVENT')) {
+        await new Promise(res => setTimeout(res, 1500));
+        text = await fetchText(url, { 'User-Agent': userAgent });
+      }
       const unfolded = text.replace(/\r?\n[ \t]/g, '');
       const blocks = unfolded.split('BEGIN:VEVENT').slice(1);
 
       for (const block of blocks) {
         const body = block.split('END:VEVENT')[0] || '';
         const getField = name => {
-          const re = new RegExp(`^${name}(?:;[^:]*)?:(.*)$`, 'mi');
+          const re = new RegExp(`^${name}(?:;([^:]*))?:(.*)$`, 'mi');
           const m = body.match(re);
-          return m ? m[1].trim() : '';
+          return m ? { params: m[1] || '', val: m[2].trim() } : { params: '', val: '' };
         };
 
-        const summary = getField('SUMMARY').replace(/\\,/g, ',');
-        const dtRaw = getField('DTSTART');
-        const location = getField('LOCATION').replace(/\\,/g, ',');
-        const madrid = parseIcsTimestampToMadrid(dtRaw);
+        const summary = getField('SUMMARY').val.replace(/\\,/g, ',');
+        const dtField = getField('DTSTART');
+        const tzMatch = dtField.params.match(/TZID=([^;]+)/i);
+        const location = getField('LOCATION').val.replace(/\\,/g, ',');
+        const madrid = parseIcsTimestampToMadrid(dtField.val, tzMatch ? tzMatch[1] : '');
         if (!madrid || !isWithinWeekAndWindow(madrid.date, madrid.time_cet, fromDate, toDate)) {
           continue;
         }
@@ -625,8 +742,78 @@ async function fetchGaaIcsFeeds(fromDate, toDate, icsUrlsRaw, userAgent) {
 }
 
 // ---------------------------------------------------------------------------
+// 5. RapidAPI Darts (Sportbex Darts API)
+// ---------------------------------------------------------------------------
+
+async function fetchRapidApiDarts(fromDate, toDate, rapidApiKey, rapidApiHost) {
+  const events = [];
+  const warnings = [];
+  if (!isRealApiKey(rapidApiKey)) return { events, warnings };
+
+  const headers = {
+    'x-rapidapi-key': rapidApiKey,
+    'x-rapidapi-host': rapidApiHost
+  };
+
+  try {
+    const compData = await fetchJson(`https://${rapidApiHost}/competitions/3503`, headers);
+    const competitions = Array.isArray(compData)
+      ? compData
+      : compData?.data || compData?.competitions || [];
+
+    for (const c of competitions) {
+      const compId = c?.competition?.id || c?.id;
+      const compName = c?.competition?.name || c?.name || 'PDC Darts';
+      if (!compId) continue;
+
+      try {
+        const evData = await fetchJson(`https://${rapidApiHost}/event/3503/${compId}`, headers);
+        const list = Array.isArray(evData) ? evData : evData?.data || evData?.events || [];
+
+        for (const item of list) {
+          const evObj = item?.event || item;
+          const dateIso = evObj?.openDate || evObj?.startDate || evObj?.date;
+          const madrid = dateIso ? toMadridDateTime(dateIso) : null;
+          if (!madrid || !isWithinWeekAndWindow(madrid.date, madrid.time_cet, fromDate, toDate)) {
+            continue;
+          }
+
+          const title = evObj?.name || compName;
+          const vsParts = title.split(/\s+(?:v|vs\.?)\s+/i);
+          events.push({
+            sport: 'Darts',
+            competition: compName,
+            stage: 'Match',
+            home_team: vsParts.length === 2 ? vsParts[0].trim() : title,
+            away_team: vsParts.length === 2 ? vsParts[1].trim() : '',
+            venue: 'TBC',
+            date: madrid.date,
+            time_cet: madrid.time_cet,
+            status: 'not_started'
+          });
+        }
+      } catch (innerErr) {
+        warnings.push(`RapidAPI Darts event (${compName}) failed: ${innerErr.message}`);
+      }
+    }
+  } catch (err) {
+    warnings.push(`RapidAPI Darts (${rapidApiHost}) unavailable: ${err.message}`);
+  }
+
+  return { events, warnings };
+}
+
+// ---------------------------------------------------------------------------
 // Deduplication, Sorting & HTML Updating
 // ---------------------------------------------------------------------------
+
+function normalizeTeamKey(name = '') {
+  return name
+    .toLowerCase()
+    .replace(/\b(fc|afc|cf)\b/g, '')
+    .replace(/\butd\b/g, 'united')
+    .replace(/[^a-z0-9]/g, '');
+}
 
 function deduplicateAndSort(events) {
   const seen = new Set();
@@ -636,9 +823,8 @@ function deduplicateAndSort(events) {
     const key = [
       ev.sport,
       ev.competition,
-      ev.stage,
-      ev.home_team || '',
-      ev.away_team || '',
+      ev.home_team ? normalizeTeamKey(ev.home_team) : (ev.stage || ''),
+      normalizeTeamKey(ev.away_team),
       ev.date,
       ev.time_cet
     ]
@@ -782,6 +968,28 @@ function updateHtmlFile({ targetInfo, bump, fromDate, toDate, scheduleData }) {
 
   const destPath = path.join(ROOT_DIR, destFilename);
   fs.writeFileSync(destPath, html, 'utf8');
+
+  if (bump) {
+    const indexPath = path.join(ROOT_DIR, 'index.html');
+    const redirectHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=${destFilename}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nelly Mc's Marbella - Weekly Sports Coverage (${activeVersionTag})</title>
+  <script>
+    window.location.replace('${destFilename}');
+  </script>
+</head>
+<body style="font-family: system-ui, sans-serif; padding: 2rem; text-align: center;">
+  <p>Redirecting to <a href="${destFilename}">Nelly Mc's Marbella — Weekly Sports Coverage (${activeVersionTag})</a>...</p>
+</body>
+</html>
+`;
+    fs.writeFileSync(indexPath, redirectHtml, 'utf8');
+  }
+
   return { destFilename, activeVersionTag };
 }
 
@@ -797,6 +1005,7 @@ async function main() {
   }
 
   loadEnvFile(path.join(ROOT_DIR, '.env'));
+  loadEnvFile(path.join(ROOT_DIR, '..', '.env'));
 
   const fromDate = opts.from || getDefaultWeekStartMonday();
   if (!isValidISODate(fromDate)) {
@@ -805,8 +1014,11 @@ async function main() {
   const toDate = addDaysISO(fromDate, 6);
 
   const apiSportsKey = process.env.API_SPORTS_KEY || '';
-  const userAgent = process.env.USER_AGENT || 'NellyMcsMarbellaSportsFetcher/1.0 (+https://nellymcs.com)';
+  const rapidApiKey = process.env.RAPIDAPI_KEY || '';
+  const rapidApiDartsHost = process.env.RAPIDAPI_DARTS_HOST || 'darts-api.p.rapidapi.com';
+  const gaaEcalWidgetUrl = process.env.GAA_ECAL_WIDGET_URL || '';
   const gaaIcsUrls = process.env.GAA_ICS_URLS || '';
+  const userAgent = process.env.USER_AGENT || 'NellyMcsMarbellaSportsFetcher/1.0 (+https://nellymcs.com)';
 
   const htmlInfo = findLatestHtmlFile();
   console.log(`[Target] ${htmlInfo.name} (${htmlInfo.versionTag})`);
@@ -817,9 +1029,6 @@ async function main() {
   const allWarnings = [];
   const inactiveNotes = [];
 
-  let gotApiFootball = false;
-  let gotApiRugby = false;
-
   if (isRealApiKey(apiSportsKey)) {
     console.log('[Fetch]  API-Sports Football & Rugby Union...');
     const [fbRes, rugbyRes] = await Promise.all([
@@ -828,29 +1037,33 @@ async function main() {
     ]);
     allEvents.push(...fbRes.events, ...rugbyRes.events);
     allWarnings.push(...fbRes.warnings, ...rugbyRes.warnings);
-    gotApiFootball = fbRes.warnings.length === 0 || fbRes.events.length > 0;
-    gotApiRugby = rugbyRes.warnings.length === 0 || rugbyRes.events.length > 0;
   } else {
-    const msg = 'API_SPORTS_KEY not set in .env; skipped API-Football & API-Rugby (using ESPN public fallback where available).';
+    const msg = 'API_SPORTS_KEY not set in .env; skipped API-Football & API-Rugby (using ESPN 7-day coverage).';
     console.log(`[Skip]   ${msg}`);
     inactiveNotes.push({ competition: 'API-Sports (Football & Rugby Union)', reason: msg });
   }
 
-  console.log('[Fetch]  Jolpica F1 & ESPN Public JSON endpoints...');
-  const [f1Res, golfRes, espnTeamRes, gaaRes] = await Promise.all([
+  console.log('[Fetch]  Jolpica F1, ESPN 7-Day Football/Rugby/Golf, GAA eCal/.ics & RapidAPI Darts...');
+  const [f1Res, golfRes, espnTeamRes, gaaRes, dartsRes] = await Promise.all([
     fetchJolpicaF1(fromDate, toDate, userAgent),
     fetchEspnGolf(fromDate, toDate),
-    fetchEspnFallbackTeamSports(fromDate, toDate, !gotApiFootball, !gotApiRugby),
-    fetchGaaIcsFeeds(fromDate, toDate, gaaIcsUrls, userAgent)
+    fetchEspnTeamSports(fromDate),
+    fetchGaaEcalAndIcs(fromDate, toDate, gaaIcsUrls, gaaEcalWidgetUrl, userAgent),
+    fetchRapidApiDarts(fromDate, toDate, rapidApiKey, rapidApiDartsHost)
   ]);
 
-  allEvents.push(...f1Res.events, ...golfRes.events, ...espnTeamRes.events, ...gaaRes.events);
-  allWarnings.push(...f1Res.warnings, ...golfRes.warnings, ...espnTeamRes.warnings, ...gaaRes.warnings);
+  allEvents.push(...f1Res.events, ...golfRes.events, ...espnTeamRes.events, ...gaaRes.events, ...dartsRes.events);
+  allWarnings.push(...f1Res.warnings, ...golfRes.warnings, ...espnTeamRes.warnings, ...gaaRes.warnings, ...dartsRes.warnings);
 
-  if (!gaaIcsUrls.trim()) {
+  if (!gaaIcsUrls.trim() && !gaaEcalWidgetUrl.trim()) {
     inactiveNotes.push({
       competition: 'GAA (Senior Football & Hurling)',
-      reason: 'No GAA_ICS_URLS feed configured in .env; add fixtures manually in the Add Event panel or configure an official .ics URL.'
+      reason: 'No GAA_ICS_URLS or GAA_ECAL_WIDGET_URL configured in .env.'
+    });
+  } else if (gaaRes.events.length === 0) {
+    inactiveNotes.push({
+      competition: 'GAA (Inter-County & Club)',
+      reason: 'Official GAA eCal feed active; no fixtures scheduled in this date/time window.'
     });
   }
 

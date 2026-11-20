@@ -1,6 +1,6 @@
 {
   "name": "nelly-mcs-sports",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": true,
   "description": "Weekly Sports Coverage generator and interactive A4 poster builder for Nelly Mc's Marbella",
   "scripts": {

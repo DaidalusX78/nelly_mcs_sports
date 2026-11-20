@@ -1,0 +1,54 @@
+name: Weekly Sports Schedule Update
+
+on:
+  schedule:
+    # Runs at 06:00 CET / 07:00 CEST (05:00 UTC) every Monday
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+    inputs:
+      from_date:
+        description: 'Optional Monday start date (YYYY-MM-DD)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-weekly-schedule:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch weekly sports and bump HTML poster version
+        env:
+          API_SPORTS_KEY: ${{ secrets.API_SPORTS_KEY }}
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+          RAPIDAPI_DARTS_HOST: ${{ secrets.RAPIDAPI_DARTS_HOST || 'darts-api.p.rapidapi.com' }}
+          GAA_ECAL_WIDGET_URL: ${{ secrets.GAA_ECAL_WIDGET_URL }}
+          GAA_ICS_URLS: ${{ secrets.GAA_ICS_URLS }}
+        run: |
+          if [ -n "${{ github.event.inputs.from_date }}" ]; then
+            node fetch-weekly-sports.js --from="${{ github.event.inputs.from_date }}" --bump
+          else
+            node fetch-weekly-sports.js --bump
+          fi
+
+      - name: Commit and push updated weekly schedule
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No schedule changes to commit."
+          else
+            git commit -m "chore: weekly sports schedule update ($(date -u +%Y-%m-%d))"
+            git push
+          fi

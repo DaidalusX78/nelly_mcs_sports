@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nelly Mc's Marbella - Sports Coverage (v01.04)</title>
+  <title>Nelly Mc's Marbella - Sports Coverage (v01.05)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -822,7 +822,7 @@
   <!-- Interactive Toolbar (Hidden on PDF Export & Print) -->
   <div class="control-bar no-export">
     <div class="control-group">
-      <span class="version-badge" id="toolbarVersionBadge">v01.04</span>
+      <span class="version-badge" id="toolbarVersionBadge">v01.05</span>
       <button type="button" class="btn" onclick="selectAllEvents()">Select All</button>
       <button type="button" class="btn btn-danger" onclick="deleteUncheckedEvents()">
         Delete Unchecked (<span id="uncheckedCount">0</span>)
@@ -832,6 +832,13 @@
     </div>
 
     <div class="control-group">
+      <button type="button" class="btn" onclick="exportToWebsiteCSV()" title="Export CSV formatted for Nelly Mc's Main Website Google Sheet CMS">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span>Export Website CSV</span>
+      </button>
+
       <button type="button" class="btn" onclick="exportToHTML()">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -935,11 +942,11 @@
 
   <!-- Designer Credit (HTML View Only, Excluded from PDF & Print) -->
   <footer class="designer-credit no-export">
-    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.04</span>
+    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.05</span>
   </footer>
 
   <script>
-    const APP_VERSION = 'v01.04';
+    const APP_VERSION = 'v01.05';
     // Week start date (Monday) used for dynamic export filenames: dd_mmm_yyyy
     const WEEK_START_DATE = new Date(2026, 10, 23); // November 23, 2026
 
@@ -950,6 +957,8 @@
       const yyyy = dateObj.getFullYear();
       return `Nelly Mc's Weekly_Sport_${dd}_${mmm}_${yyyy}`;
     }
+
+    const NELLY_MCS_LOGO_LOCAL_URL = "assets/images/Nelly%20Mcs%20Logo.png";
 
     // Google Drive direct embed URL for Nelly Mc's Marbella logo (File ID: 1zC0Q5wiMXWl9kzH9K-XRnVoGeAk5CAFJ)
     const NELLY_MCS_LOGO_DRIVE_URL = "https://lh3.googleusercontent.com/d/1zC0Q5wiMXWl9kzH9K-XRnVoGeAk5CAFJ";
@@ -976,10 +985,34 @@
       if (comp.includes('champions league')) return 'ucl';
       if (comp.includes('europa league')) return 'uel';
       if (comp.includes('conference league')) return 'uecl';
+      if (comp.includes('scottish') || comp.includes('old firm')) return 'scottish-premiership';
+      if (comp.includes('nations league')) return 'nations-league';
+      if (comp.includes('fa cup')) return 'fa-cup';
+      if (comp.includes('carabao') || comp.includes('league cup') || comp.includes('efl cup')) return 'carabao-cup';
+      if (comp.includes('efl championship') || comp.includes('sky bet championship')) return 'efl-championship';
       if (comp.includes('premier league')) return 'premier-league';
-      if (comp.includes('qatar grand prix') || comp.includes('formula')) return 'f1';
+      if (comp.includes('6 nations') || comp.includes('six nations')) return 'six-nations';
+      if (comp.includes('champions cup')) return 'rugby-champions-cup';
+      if (comp.includes('united rugby championship') || comp.includes('urc')) return 'urc';
       if (comp.includes('autumn nations')) return 'rugby-intl';
-      if (comp.includes('leinster senior club')) return 'gaa';
+      if (comp.includes('masters')) return 'golf-masters';
+      if (comp.includes('the open') || comp.includes('open championship')) return 'golf-theopen';
+      if (comp.includes('grand prix') || comp.includes('formula')) return 'f1';
+      if (comp.includes('cheltenham')) return 'cheltenham';
+      if (comp.includes('punchestown')) return 'punchestown';
+      if (comp.includes('darts') || comp.includes('pdc')) return 'darts';
+      if (
+        comp.includes('gaa') ||
+        comp.includes('hurling') ||
+        comp.includes('gaelic') ||
+        comp.includes('leinster') ||
+        comp.includes('munster') ||
+        comp.includes('ulster') ||
+        comp.includes('connacht') ||
+        comp.includes('all-ireland')
+      ) {
+        return 'gaa';
+      }
 
       const map = {
         'Football': 'premier-league',
@@ -1896,28 +1929,89 @@
 
     const DRIVE_COMPETITION_LOGOS = {
       'premier-league': {
+        localUrl: 'assets/images/premier_league.png',
         url: 'https://lh3.googleusercontent.com/d/1iFpk0coXcDWGk-2HmJmFoVTWaL3iYZgI',
         alt: 'English Premier League'
       },
       'ucl': {
+        localUrl: 'assets/images/uefa_champions_league.png',
         url: 'https://lh3.googleusercontent.com/d/1n7n8nVOfY-GXhXw6LFDyjhqgS-98Bjaq',
         alt: 'UEFA Champions League'
       },
       'uel': {
+        localUrl: 'assets/images/uefa_europa_league.png',
         url: 'https://lh3.googleusercontent.com/d/1EWRWSi0MSyfk6hP57UfB1-NhuDfPoPcx',
         alt: 'UEFA Europa League'
       },
       'uecl': {
+        localUrl: 'assets/images/uefa_onference_league.png',
         url: 'https://lh3.googleusercontent.com/d/1a63WPGzFB4SEh1zz1LFJcZilagk2SgAF',
         alt: 'UEFA Conference League'
       },
+      'scottish-premiership': {
+        localUrl: 'assets/images/scottish_premier_league.png',
+        url: 'https://lh3.googleusercontent.com/d/12aykUAPF93Fiyved-kYL6_EK3qwopu3n',
+        alt: 'Scottish Premiership'
+      },
+      'nations-league': {
+        localUrl: 'assets/images/uefa_nations_league.png',
+        url: 'https://lh3.googleusercontent.com/d/139YSIzxtiU8UVqcdHJmZLRURgIEGPakw',
+        alt: 'UEFA Nations League'
+      },
+      'fa-cup': {
+        localUrl: 'assets/images/fa_cup.png',
+        alt: 'FA Cup'
+      },
+      'carabao-cup': {
+        localUrl: 'assets/images/league_cup_carabao.png',
+        alt: 'EFL Carabao Cup'
+      },
+      'efl-championship': {
+        localUrl: 'assets/images/efl_championship.png',
+        alt: 'EFL Championship'
+      },
+      'six-nations': {
+        localUrl: 'assets/images/6_nations.png',
+        url: 'https://lh3.googleusercontent.com/d/1_r9Knrrcq3DMm9PzFeVBl31PwSaX9TdK',
+        alt: 'Six Nations Rugby'
+      },
+      'rugby-champions-cup': {
+        localUrl: 'assets/images/rugby_champions_cup.png',
+        url: 'https://lh3.googleusercontent.com/d/1upl9MPk_0Bsh-E_haAGPjrsJBpXA1AfY',
+        alt: 'European Rugby Champions Cup'
+      },
+      'urc': {
+        localUrl: 'assets/images/united_rugby_championship.png',
+        url: 'https://lh3.googleusercontent.com/d/11uhUSb4kf66yUTiiGN_eOsIZsxHfgYDY',
+        alt: 'United Rugby Championship'
+      },
+      'golf-masters': {
+        localUrl: 'assets/images/golf_masters.png',
+        url: 'https://lh3.googleusercontent.com/d/1gscNt48Ao372hQaU7VmBGZpuvEo1jU0c',
+        alt: 'The Masters'
+      },
+      'golf-theopen': {
+        localUrl: 'assets/images/golf_theopen.png',
+        url: 'https://lh3.googleusercontent.com/d/1tRyPp31ehatAeMhyQ1ASn5wfiJpD_EHS',
+        alt: 'The Open Championship'
+      },
       'gaa': {
+        localUrl: 'assets/images/gaa.png',
         url: 'https://lh3.googleusercontent.com/d/19D5kgWD9m8CGpK-C-WwvM90QFY0bRsgP',
         alt: 'GAA'
       },
       'f1': {
+        localUrl: 'assets/images/f1.png',
         url: 'https://lh3.googleusercontent.com/d/15vmMNAwfo8A2nrXFE-6RZBs5V4U2rkJE',
         alt: 'Formula One'
+      },
+      'cheltenham': {
+        localUrl: 'assets/images/cheltenham-festival.webp',
+        alt: 'Cheltenham Festival'
+      },
+      'punchestown': {
+        localUrl: 'assets/images/punchestown.svg',
+        alt: 'Punchestown Festival'
       }
     };
 
@@ -2009,6 +2103,13 @@
     }
 
     function handleLogoError(imgEl, badgeType) {
+      const entry = DRIVE_COMPETITION_LOGOS[badgeType];
+      if (entry && entry.url && !imgEl.dataset.triedDrive) {
+        imgEl.dataset.triedDrive = '1';
+        imgEl.crossOrigin = 'anonymous';
+        imgEl.src = entry.url;
+        return;
+      }
       imgEl.onerror = null;
       if (imgEl.parentElement) {
         imgEl.parentElement.innerHTML = getCompetitionFallbackSVG(badgeType);
@@ -2016,14 +2117,14 @@
     }
 
     function getCompetitionLogoHTML(badgeType) {
-      const driveLogo = DRIVE_COMPETITION_LOGOS[badgeType];
-      if (driveLogo) {
+      const logoEntry = DRIVE_COMPETITION_LOGOS[badgeType];
+      if (logoEntry) {
+        const primarySrc = logoEntry.localUrl || logoEntry.url;
         return `
           <img
-            src="${driveLogo.url}"
+            src="${primarySrc}"
             onerror="handleLogoError(this, '${badgeType}')"
-            crossorigin="anonymous"
-            alt="${driveLogo.alt}"
+            alt="${logoEntry.alt}"
           />
         `;
       }
@@ -2097,9 +2198,8 @@
           <div class="poster-page ${pageAllUnchecked}">
             <header class="poster-header">
               <img
-                src="${NELLY_MCS_LOGO_DRIVE_URL}"
-                onerror="this.onerror=null; this.src=NELLY_MCS_LOGO_FALLBACK;"
-                crossorigin="anonymous"
+                src="${NELLY_MCS_LOGO_LOCAL_URL}"
+                onerror="if(!this.dataset.triedDrive){this.dataset.triedDrive='1';this.crossOrigin='anonymous';this.src=NELLY_MCS_LOGO_DRIVE_URL;}else{this.onerror=null;this.src=NELLY_MCS_LOGO_FALLBACK;}"
                 alt="Nelly Mc's Marbella"
                 class="brand-logo"
               >
@@ -2519,6 +2619,47 @@
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       showToast(`Exported ${exportFileName} successfully!`, 'success');
+    }
+
+    /**
+     * Export checked events (or all events if none checked) as a CSV compatible
+     * with Nelly Mc's main website Google Sheet CMS (`js/menu.js` & `js/sports-print.js`).
+     */
+    function exportToWebsiteCSV() {
+      const checked = getSortedFilteredEvents().filter(e => e.checked);
+      const sourceEvents = checked.length > 0 ? checked : getSortedFilteredEvents();
+      if (sourceEvents.length === 0) {
+        showToast('No events available to export.', 'error');
+        return;
+      }
+
+      const escapeCsv = val => {
+        const str = String(val ?? '');
+        return /[",\r\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+      };
+
+      const rows = [['Date', 'Sport Category', 'Time', 'Competition', 'Match', 'Logo URL']];
+      for (const ev of sourceEvents) {
+        const [yyyy, mm, dd] = (ev.dateSort || '').split('-');
+        const dateUk = dd && mm && yyyy ? `${dd}/${mm}/${yyyy}` : ev.dateDisplay || '';
+        const logoEntry = DRIVE_COMPETITION_LOGOS[ev.badgeType];
+        const logoUrl = (logoEntry && (logoEntry.url || logoEntry.localUrl)) || '';
+        rows.push([dateUk, ev.sport, ev.time, ev.competition, ev.title, logoUrl].map(escapeCsv));
+      }
+
+      const csvContent = rows.map(r => r.join(',')).join('\r\n');
+      const base = getFormattedExportBaseName().replace("Nelly Mc's Weekly_Sport", 'Nelly_Mcs_Website_Sports');
+      const exportFileName = `${base}.csv`;
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = exportFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast(`Exported ${exportFileName} (${sourceEvents.length} rows) for Main Website CMS!`, 'success');
     }
 
     /**

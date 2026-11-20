@@ -1,16 +1,17 @@
 # Nelly Mc's Marbella — Weekly Sports Coverage Generator
 
-Interactive weekly sports schedule poster builder and live fixture ingestion tool for **Nelly Mc's Marbella**.
+Interactive weekly sports schedule poster builder and automated fixture ingestion pipeline for **Nelly Mc's Marbella**.
 
-Generates a clean, editable A4 schedule (`11:30–23:59` `Europe/Madrid` local time, Monday–Sunday) with competition crests, tick-to-select checkboxes, inline editing, HTML snapshot export, and auto-formatted 2-page PDF/Print output.
+Generates an editable A4 schedule (`11:30–23:59` `Europe/Madrid` local time, Monday–Sunday) with local competition crests, tick-to-select checkboxes, inline editing, HTML snapshot export, **Main Website CSV export** (compatible with the main site Google Sheet CMS), and auto-formatted 2-page PDF/Print output.
 
 ---
 
-## Current Release
+## Live Links & Versioning
 
-- **Active Poster App:** `nelly_sports_v01.04.html` (`v01.04`)
-- **Versioning Scheme:** `nelly_sports_vXX.YY.html` — upon each update or `--bump`, the current file version increments (e.g. `v01.03` -> `v01.04`) and displays inside the `<title>`, toolbar badge (`#toolbarVersionBadge`), footer credit (`#footerVersionLabel`), and `APP_VERSION`.
-- **Archive Policy:** Previous HTML releases are stored in `Archive/` (git-ignored) so only the current active HTML release is tracked at the project root.
+- **GitHub Pages (Live Web App Entry):** Enable GitHub Pages from `main` -> `/ (root)` in your GitHub repo settings to serve `https://daidalusx78.github.io/nelly_mcs_sports/` via [index.html](index.html), which automatically redirects to the latest versioned poster.
+- **Active Poster App:** `nelly_sports_v01.05.html` (`v01.05`)
+- **Versioning Scheme:** `nelly_sports_vXX.YY.html` — upon each update or `--bump`, the previous version moves to `Archive/` (git-ignored) and the new version displays inside `<title>`, `#toolbarVersionBadge`, `#footerVersionLabel`, `APP_VERSION`, and `index.html`.
+- **Internal Working Notes:** `Archive/` and `app_dev_work/` (credentials, prompt notes, raw API docs) are excluded via `.gitignore`.
 
 ---
 
@@ -18,13 +19,15 @@ Generates a clean, editable A4 schedule (`11:30–23:59` `Europe/Madrid` local t
 
 ```text
 nelly_mcs_sports/
-├── nelly_sports_v01.04.html   # Interactive self-contained poster & PDF/Print builder
-├── fetch-weekly-sports.js     # Automated weekly fixture fetcher & HTML updater (Node 18+)
-├── package.json               # npm scripts & project metadata
-├── .env.example               # Template for API_SPORTS_KEY and optional feeds
-├── .gitignore                 # Excludes .env, Archive/, *.pdf, OS artifacts
-├── Prompt.txt                 # Weekly sports scheduling specification
-├── api_data.txt               # API endpoint reference notes
+├── index.html                        # GitHub Pages entry redirecting to latest version
+├── nelly_sports_v01.05.html          # Interactive self-contained poster & PDF/CSV builder
+├── fetch-weekly-sports.js            # Automated weekly fixture fetcher & updater (Node 18+)
+├── register-weekly-schedule.ps1      # Registers Windows Task Scheduler (Mondays 06:00)
+├── assets/images/                    # Competition & venue crests loaded locally first
+├── .github/workflows/weekly-schedule.yml  # GitHub Actions weekly Monday 06:00 automation
+├── package.json                      # npm scripts & project metadata
+├── .env.example                      # Safe template for API keys & feed URLs
+├── .gitignore                        # Excludes .env, Archive/, app_dev_work/, *.pdf
 └── README.md
 ```
 
@@ -32,60 +35,60 @@ nelly_mcs_sports/
 
 ## Quick Start
 
-### 1. View / Edit Manually in Browser
-Double-click `nelly_sports_v01.04.html` in any modern browser:
-- **Tick fixtures** to select them for the final poster (unselected fixtures remain readable on screen and are hidden when exporting/printing).
-- **Edit inline** or add custom fixtures/notes from the **Add Panel**.
-- **Save Edits (.html)** downloads an updated self-contained HTML snapshot with your checked/edited state preserved.
-- **Export PDF (Max 2 Pages)** automatically fits selected sports onto at most 2 A4 pages (`Nelly Mc's Weekly_Sport_dd_mmm_yyyy.pdf`).
+### 1. View, Edit & Export in Browser
+Open `nelly_sports_v01.05.html` locally or via GitHub Pages:
+- **Tick fixtures** to include them on the printed/PDF poster (unselected fixtures stay readable on screen and are hidden when exporting/printing).
+- **Edit inline** or add custom fixtures/notes in the **Add Panel**.
+- **Export Website CSV** downloads `Nelly_Mcs_Website_Sports_dd_mmm_yyyy.csv` formatted with columns `Date,Sport Category,Time,Competition,Match,Logo URL` (`DD/MM/YYYY`) ready to import/paste into the main Nelly Mc's Google Sheet (`js/menu.js` & `js/sports-print.js`).
+- **Export .html** saves a self-contained snapshot preserving all edits and checked states.
+- **Export to .pdf** auto-formats selected events onto at most 2 A4 pages (`Nelly Mc's Weekly_Sport_dd_mmm_yyyy.pdf`).
 
 ### 2. Automated Weekly Fixture Ingestion (`fetch-weekly-sports.js`)
 Requires **Node.js 18+** (uses built-in `fetch`, zero third-party npm dependencies).
 
-1. Copy `.env.example` to `.env` and add your free API-Sports key:
-   ```bash
-   cp .env.example .env
-   ```
+1. Ensure `.env` exists (either inside this folder or `../.env`; see `.env.example`):
    ```env
-   API_SPORTS_KEY=your_actual_key_here
+   API_SPORTS_KEY=...
+   RAPIDAPI_KEY=...
+   RAPIDAPI_DARTS_HOST=darts-api.p.rapidapi.com
+   GAA_ECAL_WIDGET_URL=...
+   GAA_ICS_URLS=https://ics.ecal.com/ecal-sub/6b007ba68bc4640002888f6d/GAA.ics
    ```
-2. Preview without modifying files:
+2. Preview normalized fixtures without modifying files:
    ```bash
    node fetch-weekly-sports.js --dry-run
-   # or for a specific Monday:
+   # or target a specific Monday:
    node fetch-weekly-sports.js --from=2026-11-30 --dry-run
    ```
-3. Fetch fixtures and update the active HTML file:
+3. Update the active HTML file in place:
    ```bash
    node fetch-weekly-sports.js
    ```
-4. Fetch fixtures, move the previous HTML into `Archive/`, and bump the version (`v01.04` -> `v01.05`):
+4. Update fixtures, archive the prior HTML into `Archive/`, sync `index.html`, and bump the version (`v01.05` -> `v01.06`):
    ```bash
    node fetch-weekly-sports.js --bump
    ```
-
-> **Security:** Never commit `.env` or hardcode `API_SPORTS_KEY` inside client-side HTML files.
 
 ---
 
 ## Integrated Data Sources
 
-| Sport | Primary Source | Auth | Endpoint / Notes |
+| Sport | Sources | Auth | Notes |
 | --- | --- | --- | --- |
-| **Football** (EPL, UCL, UEL, UECL, Scottish Premiership [Old Firm only], World Cup, Euros, Nations League) | [API-Football v3](https://v3.football.api-sports.io/) | `x-apisports-key` (`.env`) | `/fixtures?league=...&season=...&from=...&to=...&timezone=Europe/Madrid` (falls back to ESPN `soccer/eng.1` if key absent) |
-| **Rugby Union** (Internationals, URC, Champions Cup, Six Nations) | [API-Rugby v1](https://v1.rugby.api-sports.io/) | `x-apisports-key` (`.env`) | `/games?date=YYYY-MM-DD&timezone=Europe/Madrid` (falls back to ESPN `rugby/six-nations` & `rugby/urc`) |
-| **Formula 1** (Qualifying, Sprint, Race) | [Jolpica F1](https://api.jolpi.ca/ergast/f1/) | None (`User-Agent`) | `/ergast/f1/{year}.json` |
-| **Golf & Extra Coverage** | ESPN Public JSON | None (`User-Agent`) | `/apis/site/v2/sports/{sport}/{league}/scoreboard` (`/golf/pga`, `/golf/eur`) |
-| **GAA** (Senior Football & Hurling) | Official `.ics` / iCal Feeds (optional) | None | Set comma-separated `GAA_ICS_URLS` in `.env` or add manually in the poster drawer |
+| **Football** (EPL, UCL, UEL, UECL, Scottish Premiership [Old Firm only], World Cup, Euros, Nations League) | [API-Football v3](https://v3.football.api-sports.io/) + ESPN 7-Day Scoreboards | `x-apisports-key` (`.env`) | Merges API-Sports with ESPN `eng.1`, `uefa.champions`, `uefa.europa`, `uefa.europa.conf`, `sco.1`, `uefa.nations`, `fifa.world`, `uefa.euro` across all 7 days |
+| **Rugby Union** (Internationals, Six Nations, URC, Champions Cup, World Cup) | [API-Rugby v1](https://v1.rugby.api-sports.io/) + ESPN 7-Day Scoreboards | `x-apisports-key` (`.env`) | Merges API-Sports with ESPN `289234`, `180659`, `270557`, `271937`, `164205` |
+| **Formula 1** (Sprint, Qualifying, Race) | [Jolpica F1](https://api.jolpi.ca/ergast/f1/) | `User-Agent` | `/ergast/f1/{year}.json` |
+| **Golf** (PGA Tour & DP World Tour) | ESPN Public JSON | `Accept: application/json` | `/golf/pga/scoreboard`, `/golf/eur/scoreboard` |
+| **Darts** (PDC & Major Tournaments) | RapidAPI Sportbex (`darts-api.p.rapidapi.com`) | `x-rapidapi-key` (`.env`) | `/competitions/3503`, `/event/3503/{competitionId}` (defensive fallback on upstream errors) |
+| **GAA** (Senior Football & Hurling) | Official GAA eCal API + `.ics` feed | Widget/API key (`.env`) | `sync.ecal.com` / `api-cdn.ecal.com/apiv3` + `ics.ecal.com/.../GAA.ics` |
 
 All timestamps are converted to **`Europe/Madrid`** local time and filtered strictly to **`11:30–23:59`**.
 
 ---
 
-## Architecture Note: Web vs. PWA vs. Native App
+## Monday 06:00 Auto-Scheduler
 
-For a workflow executed **once a week** to curate fixtures and export an A4 PDF/print poster:
-
-- **Recommended — Web App + Local CLI Fetcher (current setup):** Zero build/app-store overhead, works on any Mac/Windows browser offline once generated, relies natively on browser print & `html2pdf.js`, and keeps `API_SPORTS_KEY` safely server/CLI-side in `.env`.
-- **Optional Upgrade — Light PWA / Hosted Internal Web Page:** If staff want an icon on a tablet/desktop dock without touching local files, serve the built HTML via GitHub Pages or an internal URL and add a `manifest.json` + lightweight serverless/GitHub Actions proxy for the weekly API fetch.
-- **Not Recommended — Native Mobile/Desktop App:** Overkill for a single weekly PDF-poster workflow and duplicates browser A4 layout/print capabilities unnecessarily.
+Three scheduling options are pre-configured for Monday **06:00** weekly runs:
+1. **Antigravity Daemon Schedule:** Cron `0 6 * * 1` triggers `node fetch-weekly-sports.js --bump` automatically when Antigravity is running.
+2. **Windows Task Scheduler:** Run `.\register-weekly-schedule.ps1` once to register the local `NellyMcsWeeklySportsFetch` task every Monday at `06:00`.
+3. **GitHub Actions Workflow:** [.github/workflows/weekly-schedule.yml](.github/workflows/weekly-schedule.yml) runs Mondays at `05:00 UTC` (if you add `API_SPORTS_KEY`, `RAPIDAPI_KEY`, etc. to **GitHub Repo -> Settings -> Secrets -> Actions**).
