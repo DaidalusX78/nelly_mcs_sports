@@ -4,7 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nelly Mc's Marbella - Sports Coverage (v01.08)</title>
+  <title>Nelly Mc's Marbella - Sports Coverage (v01.09)</title>
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="128x128" href="assets/images/favicon-128x128.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -125,6 +129,12 @@
       user-select: none;
     }
 
+    .btn.btn-active {
+      background: var(--brand-teal-light);
+      border-color: var(--brand-teal);
+      color: var(--brand-teal-dark);
+    }
+
     .week-picker-box {
       display: inline-flex;
       align-items: center;
@@ -143,15 +153,43 @@
       user-select: none;
     }
 
-    .week-picker-input {
-      border: none;
-      background: transparent;
+    .week-picker-date-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .week-picker-display {
       font-family: inherit;
       font-size: 0.78rem;
       font-weight: 600;
       color: var(--text-dark);
-      outline: none;
+      padding: 2px 4px;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .week-picker-input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
       cursor: pointer;
+    }
+
+    .drawer-section {
+      display: none;
+    }
+
+    .drawer-section.open {
+      display: block;
+    }
+
+    .drawer-section.open + .drawer-section.open {
+      border-top: 1px solid #E2E8F0;
+      padding-top: 14px;
     }
 
     /* Manual Add Event & Text Drawer (Hidden on PDF & Print) */
@@ -851,20 +889,23 @@
   <!-- Interactive Toolbar (Hidden on PDF Export & Print) -->
   <div class="control-bar no-export">
     <div class="control-group">
-      <span class="version-badge" id="toolbarVersionBadge">v01.08</span>
+      <span class="version-badge" id="toolbarVersionBadge">v01.09</span>
       <div class="week-picker-box">
         <label for="toolbarWeekDate" class="week-picker-label">Week:</label>
-        <input type="date" id="toolbarWeekDate" class="week-picker-input" value="2026-11-23" title="Pick any date (auto-snaps to Monday of that week)" />
+        <div class="week-picker-date-wrap" onclick="openWeekDatePicker()" title="Pick any date (auto-snaps to Monday of that week)">
+          <span id="toolbarWeekDisplay" class="week-picker-display">23/11/2026</span>
+          <input type="date" id="toolbarWeekDate" class="week-picker-input" value="2026-11-23" aria-label="Select week start date" />
+        </div>
         <button type="button" id="fetchWeekBtn" class="btn btn-primary" onclick="fetchWeekInBrowser()" title="Fetch live Monday–Sunday fixtures (11:30–23:59 Madrid time)">
           <span id="fetchWeekLabel">Fetch Week</span>
         </button>
       </div>
-      <button type="button" class="btn" onclick="selectAllEvents()">Select All</button>
+      <button type="button" id="toggleAddEventBtn" class="btn" onclick="toggleDrawerSection('event')">ADD EVENT</button>
+      <button type="button" id="toggleAddNoteBtn" class="btn" onclick="toggleDrawerSection('note')">ADD ANNOUNCEMENT</button>
       <button type="button" class="btn btn-danger" onclick="deleteUncheckedEvents()">
         Delete Unchecked (<span id="uncheckedCount">0</span>)
       </button>
       <button type="button" class="btn" onclick="resetAllEvents()">Reset All</button>
-      <button type="button" id="toggleAddBtn" class="btn" onclick="toggleAddPanel()">Close Add Panel</button>
     </div>
 
     <div class="control-group">
@@ -872,14 +913,7 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <span>Export Website CSV</span>
-      </button>
-
-      <button type="button" class="btn" onclick="exportToHTML()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-        </svg>
-        <span>Export .html</span>
+        <span>Update Website</span>
       </button>
 
       <button type="button" class="btn" onclick="printSchedule()">
@@ -899,8 +933,8 @@
   </div>
 
   <!-- Collapsible Manual Event & Custom Text Panel (Hidden in PDF & Print) -->
-  <div id="addPanel" class="add-panel open no-export">
-    <div>
+  <div id="addPanel" class="add-panel no-export">
+    <div id="addEventSection" class="drawer-section">
       <div class="add-section-title">Add Sporting Event</div>
       <div class="add-form-grid">
         <div class="form-field">
@@ -943,7 +977,7 @@
       </div>
     </div>
 
-    <div style="border-top: 1px solid #E2E8F0; padding-top: 14px;">
+    <div id="addNoteSection" class="drawer-section">
       <div class="add-section-title">Add Additional Text / Announcement</div>
       <div class="add-form-grid">
         <div class="form-field" style="grid-column: span 3;">
@@ -978,11 +1012,11 @@
 
   <!-- Designer Credit (HTML View Only, Excluded from PDF & Print) -->
   <footer class="designer-credit no-export">
-    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.08</span>
+    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.09</span>
   </footer>
 
   <script>
-    const APP_VERSION = 'v01.08';
+    const APP_VERSION = 'v01.09';
     // Week start date (Monday) used for dynamic export filenames: dd_mmm_yyyy
     let WEEK_START_DATE = new Date(2026, 10, 23); // November 23, 2026
 
@@ -1973,13 +2007,21 @@
       return `${y}-${m}-${d}`;
     }
 
+    function formatDateDDMMYYYY(isoDate) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate || '')) return '';
+      const [y, m, d] = isoDate.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
     function applyWeekStartISO(mondayISO) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(mondayISO || '')) return;
       const [y, m, d] = mondayISO.split('-').map(Number);
       WEEK_START_DATE = new Date(y, m - 1, d);
       const pickerEl = document.getElementById('toolbarWeekDate');
+      const displayEl = document.getElementById('toolbarWeekDisplay');
       const addDateEl = document.getElementById('newDate');
       if (pickerEl) pickerEl.value = mondayISO;
+      if (displayEl) displayEl.textContent = formatDateDDMMYYYY(mondayISO);
       if (addDateEl) addDateEl.value = mondayISO;
     }
 
@@ -2440,11 +2482,33 @@
       document.getElementById('uncheckedCount').textContent = unchecked;
     }
 
-    function toggleAddPanel() {
+    function toggleDrawerSection(section) {
       const panel = document.getElementById('addPanel');
-      const btn = document.getElementById('toggleAddBtn');
-      const isOpen = panel.classList.toggle('open');
-      btn.textContent = isOpen ? 'Close Add Panel' : '+ Add Event / Text';
+      const eventSec = document.getElementById('addEventSection');
+      const noteSec = document.getElementById('addNoteSection');
+      const eventBtn = document.getElementById('toggleAddEventBtn');
+      const noteBtn = document.getElementById('toggleAddNoteBtn');
+
+      if (section === 'event' && eventSec) {
+        const open = eventSec.classList.toggle('open');
+        if (eventBtn) eventBtn.classList.toggle('btn-active', open);
+      } else if (section === 'note' && noteSec) {
+        const open = noteSec.classList.toggle('open');
+        if (noteBtn) noteBtn.classList.toggle('btn-active', open);
+      }
+
+      const anyOpen = Boolean(
+        (eventSec && eventSec.classList.contains('open')) ||
+        (noteSec && noteSec.classList.contains('open'))
+      );
+      if (panel) panel.classList.toggle('open', anyOpen);
+    }
+
+    function openWeekDatePicker() {
+      const pickerEl = document.getElementById('toolbarWeekDate');
+      if (pickerEl && typeof pickerEl.showPicker === 'function') {
+        try { pickerEl.showPicker(); } catch (_) {}
+      }
     }
 
     function addManualEvent() {
@@ -3025,15 +3089,29 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
+      const embeddedFrom = SCHEDULE_DATA?.metadata?.date_range?.from || toLocalISOString(WEEK_START_DATE);
+      const embeddedTo = SCHEDULE_DATA?.metadata?.date_range?.to || addDaysISO(embeddedFrom, 6);
+      const madridNow = toMadridPartsBrowser(new Date());
       const pickerEl = document.getElementById('toolbarWeekDate');
+
       if (pickerEl) {
-        pickerEl.value = toLocalISOString(WEEK_START_DATE);
         pickerEl.addEventListener('change', () => {
           const snapped = snapToMondayISO(pickerEl.value);
           if (snapped) applyWeekStartISO(snapped);
         });
       }
-      renderPoster();
+
+      if (madridNow && madridNow.date > embeddedTo) {
+        const currentMondayISO = snapToMondayISO(madridNow.date);
+        applyWeekStartISO(currentMondayISO);
+        renderPoster();
+        if (currentMondayISO && currentMondayISO !== embeddedFrom) {
+          fetchWeekInBrowser();
+        }
+      } else {
+        applyWeekStartISO(toLocalISOString(WEEK_START_DATE));
+        renderPoster();
+      }
     });
   </script>
 </body>

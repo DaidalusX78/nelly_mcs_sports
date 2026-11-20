@@ -9,7 +9,7 @@ Generates an editable A4 schedule (`11:30–23:59` `Europe/Madrid` local time, M
 ## Live Links & Versioning
 
 - **GitHub Pages (Live Web App Entry):** Enable GitHub Pages from `main` -> `/ (root)` in your GitHub repo settings to serve `https://daidalusx78.github.io/nelly_mcs_sports/` via [index.html](index.html), which automatically redirects to the latest versioned poster.
-- **Active Poster App:** `nelly_sports_v01.08.html` (`v01.08`)
+- **Active Poster App:** `nelly_sports_v01.09.html` (`v01.09`)
 - **Versioning Scheme:** `nelly_sports_vXX.YY.html` — upon each update or `--bump`, the previous version moves to `Archive/` (git-ignored) and the new version displays inside `<title>`, `#toolbarVersionBadge`, `#footerVersionLabel`, `APP_VERSION`, and `index.html`.
 - **Internal Working Notes:** `Archive/` and `app_dev_work/` (credentials, prompt notes, raw API docs) are excluded via `.gitignore`.
 
@@ -20,7 +20,7 @@ Generates an editable A4 schedule (`11:30–23:59` `Europe/Madrid` local time, M
 ```text
 nelly_mcs_sports/
 ├── index.html                        # GitHub Pages entry redirecting to latest version
-├── nelly_sports_v01.08.html          # Interactive self-contained poster & PDF/CSV builder
+├── nelly_sports_v01.09.html          # Interactive self-contained poster & PDF/CSV builder
 ├── fetch-weekly-sports.js            # Automated weekly fixture fetcher & updater (Node 18+)
 ├── register-weekly-schedule.ps1      # Registers Windows Task Scheduler (Mondays 06:00)
 ├── assets/images/                    # Competition & venue crests loaded locally first
@@ -36,12 +36,11 @@ nelly_mcs_sports/
 ## Quick Start
 
 ### 1. View, Edit & Export in Browser
-Open `nelly_sports_v01.08.html` locally or via GitHub Pages:
-- **Week Picker + Fetch Week:** Pick any date in the top toolbar (auto-snaps to the Monday of that week) and click **Fetch Week** to pull live Monday–Sunday fixtures (`11:30–23:59` `Europe/Madrid` time) directly in the browser without needing a terminal.
+Open `nelly_sports_v01.09.html` locally or via GitHub Pages:
+- **Week Picker + Fetch Week:** Displays `DD/MM/YYYY` (automatically advancing to the current week when opened later), snaps to Monday, and fetches live Monday–Sunday fixtures (`11:30–23:59` `Europe/Madrid` time) directly in the browser.
 - **Tick fixtures** to include them on the printed/PDF poster (unselected fixtures stay readable on screen and are hidden when exporting/printing).
-- **Edit inline** or add custom fixtures/notes in the **Add Panel**.
-- **Export Website CSV** downloads `Nelly_Mcs_Website_Sports_dd_mmm_yyyy.csv` formatted with columns `Date,Sport Category,Time,Competition,Match,Logo URL` (`DD/MM/YYYY`) ready to import/paste into the main Nelly Mc's Google Sheet (`js/menu.js` & `js/sports-print.js`).
-- **Export .html** saves a self-contained snapshot preserving all edits and checked states.
+- **Add Event / Add Announcement:** Use the **ADD EVENT** and **ADD ANNOUNCEMENT** toolbar buttons to reveal or hide each drawer independently.
+- **Update Website** downloads `Nelly_Mcs_Website_Sports_dd_mmm_yyyy.csv` formatted with columns `Date,Sport Category,Time,Competition,Match,Logo URL` (`DD/MM/YYYY`) ready to import/paste into the main Nelly Mc's Google Sheet (`js/menu.js` & `js/sports-print.js`).
 - **Export to .pdf** auto-formats selected events onto at most 2 A4 pages (`Nelly Mc's Weekly_Sport_dd_mmm_yyyy.pdf`).
 
 ### 2. Automated Weekly Fixture Ingestion (`fetch-weekly-sports.js`)
@@ -65,7 +64,7 @@ Requires **Node.js 18+** (uses built-in `fetch`, zero third-party npm dependenci
    ```bash
    node fetch-weekly-sports.js
    ```
-4. Update fixtures, archive the prior HTML into `Archive/`, sync `index.html`, and bump the version (`v01.08` -> `v01.09`):
+4. Update fixtures, archive the prior HTML into `Archive/`, sync `index.html`, and bump the version (`v01.09` -> `v01.10`):
    ```bash
    node fetch-weekly-sports.js --bump
    ```

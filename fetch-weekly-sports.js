@@ -988,6 +988,10 @@ function updateHtmlFile({ targetInfo, bump, fromDate, toDate, scheduleData }) {
   <meta http-equiv="refresh" content="0; url=${destFilename}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nelly Mc's Marbella - Weekly Sports Coverage (${activeVersionTag})</title>
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="128x128" href="assets/images/favicon-128x128.png">
   <script>
     window.location.replace('${destFilename}');
   </script>
