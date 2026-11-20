@@ -1,0 +1,2552 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nelly Mc's Marbella - Sports Coverage (v01.04)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- html2pdf.js bundle (includes jsPDF + html2canvas) for direct .pdf download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    :root {
+      --brand-teal: #3B9CA4;
+      --brand-teal-dark: #28757C;
+      --brand-teal-light: #EBF6F7;
+      --text-dark: #1E293B;
+      --text-muted: #64748B;
+      --bg-page: #F1F5F9;
+      --white: #FFFFFF;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 500;
+      font-size: 17px;
+      background-color: var(--bg-page);
+      color: var(--text-dark);
+      padding: 30px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    /* Interactive Control Bar (Hidden in PDF & Print) */
+    .control-bar {
+      width: 100%;
+      max-width: 800px;
+      background: var(--white);
+      padding: 14px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      background: var(--white);
+      color: var(--text-dark);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: #F8FAFC;
+      border-color: #94A3B8;
+    }
+
+    .btn-danger {
+      border-color: #FECDD3;
+      background: #FFF1F2;
+      color: #BE123C;
+    }
+
+    .btn-danger:hover {
+      background: #FFE4E6;
+      border-color: #FDA4AF;
+    }
+
+    .btn-primary {
+      background: var(--brand-teal);
+      border-color: var(--brand-teal);
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: var(--brand-teal-dark);
+      border-color: var(--brand-teal-dark);
+    }
+
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    .version-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      background: rgba(59, 156, 164, 0.14);
+      color: #3B9CA4;
+      border: 1px solid rgba(59, 156, 164, 0.35);
+      user-select: none;
+    }
+
+    /* Manual Add Event & Text Drawer (Hidden on PDF & Print) */
+    .add-panel {
+      width: 100%;
+      max-width: 800px;
+      background: var(--white);
+      padding: 18px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid #E2E8F0;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .add-panel.open {
+      display: flex;
+    }
+
+    .add-section-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--brand-teal-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+
+    .add-form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-field label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-field input,
+    .form-field select {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 8px 10px;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      color: var(--text-dark);
+      background: var(--white);
+    }
+
+    .form-field input:focus,
+    .form-field select:focus {
+      outline: none;
+      border-color: var(--brand-teal);
+      box-shadow: 0 0 0 2px var(--brand-teal-light);
+    }
+
+    /* Custom Text / Notes rendered inside Poster Page */
+    .custom-notes-section {
+      margin-top: 28px;
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .custom-note-row {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 8px 36px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      transition: border-color 0.15s ease;
+    }
+
+    .custom-note-row .row-left {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .custom-note-row .delete-row-btn {
+      position: absolute;
+      right: 8px;
+    }
+
+    .note-text {
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      cursor: pointer;
+    }
+
+    /* Page Credit Footer (Shown in HTML only, hidden in PDF & Print) */
+    .designer-credit {
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 4px 0 16px;
+    }
+
+    .status-toast {
+      width: 100%;
+      max-width: 800px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    .status-toast.show {
+      display: block;
+    }
+
+    .status-toast.info {
+      background: var(--brand-teal-light);
+      color: var(--brand-teal-dark);
+      border: 1px solid #B6E0E4;
+    }
+
+    .status-toast.success {
+      background: #ECFDF5;
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+    }
+
+    .status-toast.error {
+      background: #FFF1F2;
+      color: #9F1239;
+      border: 1px solid #FECDD3;
+    }
+
+    /* Poster Pages Wrapper */
+    #posterPagesWrapper {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    /* Poster / A4 Page Container (Exact user styling) */
+    .poster-page {
+      background: var(--white);
+      width: 100%;
+      max-width: 800px;
+      min-height: 1050px;
+      padding: 45px 50px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Header & Logo */
+    .poster-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .brand-logo {
+      max-width: 240px;
+      height: auto;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .week-banner {
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      padding: 12px 20px;
+    }
+
+    .helper-subtext {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Sport Category Headers */
+    .sport-category {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 6px;
+    }
+
+    .sport-category h2 {
+      color: var(--text-dark);
+      font-size: 1.2rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+    }
+
+    .mt-large {
+      margin-top: 45px;
+    }
+
+    /* Day Sections */
+    .day-group {
+      margin-bottom: 22px;
+    }
+
+    .day-title {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--brand-teal);
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+    }
+
+    /* Individual Match Rows */
+    .match-row {
+      font-size: 17px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 18px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .match-row:hover {
+      transform: translateX(4px);
+    }
+
+    .match-row:not(.is-unchecked),
+    .custom-note-row:not(.is-unchecked) {
+      border: 1px solid rgba(59, 156, 164, 0.45);
+    }
+
+    .row-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Custom Checkbox */
+    .event-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #94A3B8;
+      border-radius: 5px;
+      background-color: var(--white);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    .event-checkbox:hover {
+      border-color: var(--brand-teal);
+    }
+
+    .event-checkbox:checked {
+      background-color: var(--brand-teal);
+      border-color: var(--brand-teal);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd'/%3E%3C/svg%3E");
+      background-size: 85% 85%;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .fixture-info {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      column-gap: 14px;
+      row-gap: 2px;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .competition-logo {
+      grid-row: 1 / 3;
+      width: 48px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      justify-self: center;
+    }
+
+    .competition-logo img {
+      width: 48px;
+      height: 36px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .teams {
+      font-weight: 500;
+      font-size: 1.2rem;
+      color: var(--text-dark);
+    }
+
+    /* Competition Subtitle */
+    .competition-badge {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--text-dark);
+    }
+
+    .row-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Kickoff / Event Time */
+    .kickoff-time {
+      font-weight: 500;
+      font-size: 1.2rem;
+      color: var(--text-dark);
+      background: var(--white);
+      padding: 5px 12px;
+      border-radius: 5px;
+    }
+
+    .delete-row-btn {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .delete-row-btn:hover {
+      color: #BE123C;
+      background: #FFE4E6;
+    }
+
+    .empty-state {
+      background: var(--white);
+      width: 100%;
+      max-width: 800px;
+      padding: 50px 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      display: none;
+    }
+
+    .empty-state.show {
+      display: block;
+    }
+
+    /* Direct PDF Export Mode (Matches Print Output Exactly) */
+    .pdf-export-mode {
+      gap: 0 !important;
+    }
+
+    .pdf-export-mode .poster-page,
+    .poster-page.pdf-export-mode {
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-height: auto !important;
+      padding: 35px 45px;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .pdf-export-mode .poster-page:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .pdf-export-mode .no-export,
+    .pdf-export-mode .match-row.is-unchecked,
+    .pdf-export-mode .custom-note-row.is-unchecked,
+    .pdf-export-mode .custom-notes-section.all-unchecked,
+    .pdf-export-mode .day-group.all-unchecked,
+    .pdf-export-mode .sport-block.all-unchecked,
+    .pdf-export-mode .poster-page.all-unchecked {
+      display: none !important;
+    }
+
+    .pdf-export-mode .match-row,
+    .pdf-export-mode .custom-note-row {
+      border-color: transparent !important;
+    }
+
+    /* Auto-format density tiers (keep each poster section fitted to 1 page, max 2 PDF pages total) */
+    .poster-page.auto-format-medium {
+      min-height: auto !important;
+      padding: 24px 36px !important;
+    }
+
+    .poster-page.auto-format-medium .poster-header {
+      margin-bottom: 16px;
+    }
+
+    .poster-page.auto-format-medium .brand-logo {
+      max-width: 190px;
+      margin-bottom: 10px;
+    }
+
+    .poster-page.auto-format-medium .week-banner {
+      font-size: 1.05rem;
+      padding: 6px 12px;
+    }
+
+    .poster-page.auto-format-medium .sport-category {
+      margin-bottom: 12px;
+    }
+
+    .poster-page.auto-format-medium .day-group {
+      margin-bottom: 12px;
+    }
+
+    .poster-page.auto-format-medium .day-title {
+      font-size: 1.05rem;
+      margin-bottom: 6px;
+    }
+
+    .poster-page.auto-format-medium .match-row {
+      padding: 4px 10px;
+    }
+
+    .poster-page.auto-format-medium .competition-logo,
+    .poster-page.auto-format-medium .competition-logo img {
+      width: 40px;
+      height: 30px;
+    }
+
+    .poster-page.auto-format-medium .teams,
+    .poster-page.auto-format-medium .kickoff-time {
+      font-size: 1.05rem;
+    }
+
+    .poster-page.auto-format-compact {
+      min-height: auto !important;
+      padding: 22px 30px !important;
+    }
+
+    .poster-page.auto-format-compact .poster-header {
+      margin-bottom: 14px;
+    }
+
+    .poster-page.auto-format-compact .brand-logo {
+      max-width: 170px;
+      margin-bottom: 8px;
+    }
+
+    .poster-page.auto-format-compact .week-banner {
+      font-size: 1rem;
+      padding: 4px 10px;
+    }
+
+    .poster-page.auto-format-compact .sport-category {
+      margin-bottom: 10px;
+    }
+
+    .poster-page.auto-format-compact .mt-large {
+      margin-top: 18px;
+    }
+
+    .poster-page.auto-format-compact .day-group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 18px;
+      row-gap: 4px;
+      margin-bottom: 14px;
+    }
+
+    .poster-page.auto-format-compact .day-title {
+      grid-column: 1 / -1;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .poster-page.auto-format-compact .match-row {
+      padding: 3px 6px;
+    }
+
+    .poster-page.auto-format-compact .fixture-info {
+      grid-template-columns: 34px 1fr;
+      column-gap: 8px;
+      row-gap: 1px;
+    }
+
+    .poster-page.auto-format-compact .competition-logo,
+    .poster-page.auto-format-compact .competition-logo img {
+      width: 34px;
+      height: 26px;
+    }
+
+    .poster-page.auto-format-compact .teams {
+      font-size: 0.92rem;
+    }
+
+    .poster-page.auto-format-compact .competition-badge {
+      font-size: 0.62rem;
+    }
+
+    .poster-page.auto-format-compact .kickoff-time {
+      font-size: 0.92rem;
+      padding: 2px 6px;
+    }
+
+    .poster-page.auto-format-ultra {
+      min-height: auto !important;
+      padding: 14px 22px !important;
+    }
+
+    .poster-page.auto-format-ultra .poster-header {
+      margin-bottom: 8px;
+    }
+
+    .poster-page.auto-format-ultra .brand-logo {
+      max-width: 130px;
+      margin-bottom: 4px;
+    }
+
+    .poster-page.auto-format-ultra .week-banner {
+      font-size: 0.92rem;
+      padding: 2px 8px;
+    }
+
+    .poster-page.auto-format-ultra .sport-category {
+      margin-bottom: 6px;
+      padding-bottom: 2px;
+    }
+
+    .poster-page.auto-format-ultra .sport-category h2 {
+      font-size: 1rem;
+    }
+
+    .poster-page.auto-format-ultra .mt-large {
+      margin-top: 12px;
+    }
+
+    .poster-page.auto-format-ultra .day-group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 14px;
+      row-gap: 2px;
+      margin-bottom: 8px;
+    }
+
+    .poster-page.auto-format-ultra .day-title {
+      grid-column: 1 / -1;
+      font-size: 0.88rem;
+      margin-bottom: 2px;
+    }
+
+    .poster-page.auto-format-ultra .match-row {
+      padding: 1px 4px;
+    }
+
+    .poster-page.auto-format-ultra .fixture-info {
+      grid-template-columns: 26px 1fr;
+      column-gap: 6px;
+      row-gap: 0;
+    }
+
+    .poster-page.auto-format-ultra .competition-logo,
+    .poster-page.auto-format-ultra .competition-logo img {
+      width: 26px;
+      height: 20px;
+    }
+
+    .poster-page.auto-format-ultra .teams {
+      font-size: 0.78rem;
+      line-height: 1.15;
+    }
+
+    .poster-page.auto-format-ultra .competition-badge {
+      font-size: 0.55rem;
+      line-height: 1.1;
+    }
+
+    .poster-page.auto-format-ultra .kickoff-time {
+      font-size: 0.78rem;
+      padding: 1px 4px;
+    }
+
+    .poster-page.auto-format-ultra .custom-notes-section {
+      margin-top: 10px;
+      padding-top: 6px;
+    }
+
+    .poster-page.auto-format-ultra .note-text {
+      font-size: 1rem;
+    }
+
+    .poster-page.auto-format-compact .row-left,
+    .poster-page.auto-format-ultra .row-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .poster-page.auto-format-compact .fixture-info,
+    .poster-page.auto-format-ultra .fixture-info {
+      min-width: 0;
+    }
+
+    .poster-page.auto-format-compact .row-right,
+    .poster-page.auto-format-ultra .row-right {
+      flex-shrink: 0;
+    }
+
+    /* Print / PDF Export Optimization */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm;
+      }
+
+      body {
+        background: none !important;
+        padding: 0 !important;
+        gap: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .no-export,
+      .match-row.is-unchecked,
+      .custom-note-row.is-unchecked,
+      .custom-notes-section.all-unchecked,
+      .day-group.all-unchecked,
+      .sport-block.all-unchecked,
+      .poster-page.all-unchecked {
+        display: none !important;
+      }
+
+      .match-row,
+      .custom-note-row {
+        border-color: transparent !important;
+      }
+
+      #posterPagesWrapper {
+        gap: 0 !important;
+        max-width: 100% !important;
+      }
+
+      .poster-page {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        max-width: 100% !important;
+        min-height: 100vh !important;
+        page-break-after: always;
+      }
+
+      .poster-page:last-child {
+        page-break-after: auto;
+      }
+    }
+
+    /* Responsive Mobile Tweaks */
+    @media (max-width: 600px) {
+      .poster-page {
+        padding: 25px 20px;
+        min-height: auto;
+      }
+
+      .match-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 10px;
+      }
+
+      .row-right {
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Interactive Toolbar (Hidden on PDF Export & Print) -->
+  <div class="control-bar no-export">
+    <div class="control-group">
+      <span class="version-badge" id="toolbarVersionBadge">v01.04</span>
+      <button type="button" class="btn" onclick="selectAllEvents()">Select All</button>
+      <button type="button" class="btn btn-danger" onclick="deleteUncheckedEvents()">
+        Delete Unchecked (<span id="uncheckedCount">0</span>)
+      </button>
+      <button type="button" class="btn" onclick="resetAllEvents()">Reset All</button>
+      <button type="button" id="toggleAddBtn" class="btn" onclick="toggleAddPanel()">Close Add Panel</button>
+    </div>
+
+    <div class="control-group">
+      <button type="button" class="btn" onclick="exportToHTML()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        <span>Export .html</span>
+      </button>
+
+      <button type="button" class="btn" onclick="printSchedule()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        </svg>
+        <span>Print</span>
+      </button>
+
+      <button type="button" id="exportPdfBtn" class="btn btn-primary" onclick="exportToPDF()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span id="exportPdfLabel">Export to .pdf</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Collapsible Manual Event & Custom Text Panel (Hidden in PDF & Print) -->
+  <div id="addPanel" class="add-panel open no-export">
+    <div>
+      <div class="add-section-title">Add Sporting Event</div>
+      <div class="add-form-grid">
+        <div class="form-field">
+          <label for="newSport">Sport</label>
+          <select id="newSport">
+            <option value="Football">Football</option>
+            <option value="Rugby Union">Rugby Union</option>
+            <option value="Golf">Golf</option>
+            <option value="Formula One">Formula One</option>
+            <option value="Darts">Darts</option>
+            <option value="GAA">GAA</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="newCompetition">Competition / Subtitle</label>
+          <input type="text" id="newCompetition" placeholder="e.g. Premier League" value="Premier League" />
+        </div>
+        <div class="form-field">
+          <label for="newDate">Date</label>
+          <input type="date" id="newDate" value="2026-11-23" />
+        </div>
+        <div class="form-field">
+          <label for="newTime">Madrid Time (11:30–23:59)</label>
+          <input type="time" id="newTime" value="20:00" min="11:30" max="23:59" />
+        </div>
+        <div class="form-field" style="grid-column: span 2;">
+          <label for="newTitle">Match / Event Title</label>
+          <input type="text" id="newTitle" placeholder="e.g. Real Madrid vs Barcelona" />
+        </div>
+        <div class="form-field">
+          <label for="newEventPage">Poster Page</label>
+          <select id="newEventPage">
+            <option value="1">Page 1</option>
+            <option value="2">Page 2</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <button type="button" class="btn btn-primary" style="justify-content: center;" onclick="addManualEvent()">Add Event</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="border-top: 1px solid #E2E8F0; padding-top: 14px;">
+      <div class="add-section-title">Add Additional Text / Announcement</div>
+      <div class="add-form-grid">
+        <div class="form-field" style="grid-column: span 3;">
+          <label for="newNoteText">Banner / Footer Text</label>
+          <input type="text" id="newNoteText" placeholder="e.g. Live Music after the final whistle · Kitchen open until 23:00" />
+        </div>
+        <div class="form-field">
+          <label for="newNotePage">Poster Page</label>
+          <select id="newNotePage">
+            <option value="1">Page 1</option>
+            <option value="2">Page 2</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <button type="button" class="btn btn-primary" style="justify-content: center;" onclick="addCustomText()">Add Text</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Feedback Banner -->
+  <div id="statusToast" class="status-toast no-export"></div>
+
+  <!-- Final Printable / Exportable Poster Pages -->
+  <div id="posterPagesWrapper"></div>
+
+  <!-- Empty State if User Deletes Every Fixture -->
+  <div id="emptyState" class="empty-state no-export">
+    <p style="margin-bottom: 16px; color: #475569;">All sporting fixtures have been removed from the schedule.</p>
+    <button type="button" class="btn btn-primary" onclick="resetAllEvents()">Restore Full Weekly Schedule</button>
+  </div>
+
+  <!-- Designer Credit (HTML View Only, Excluded from PDF & Print) -->
+  <footer class="designer-credit no-export">
+    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.04</span>
+  </footer>
+
+  <script>
+    const APP_VERSION = 'v01.04';
+    // Week start date (Monday) used for dynamic export filenames: dd_mmm_yyyy
+    const WEEK_START_DATE = new Date(2026, 10, 23); // November 23, 2026
+
+    function getFormattedExportBaseName(dateObj = WEEK_START_DATE) {
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const mmm = months[dateObj.getMonth()];
+      const yyyy = dateObj.getFullYear();
+      return `Nelly Mc's Weekly_Sport_${dd}_${mmm}_${yyyy}`;
+    }
+
+    // Google Drive direct embed URL for Nelly Mc's Marbella logo (File ID: 1zC0Q5wiMXWl9kzH9K-XRnVoGeAk5CAFJ)
+    const NELLY_MCS_LOGO_DRIVE_URL = "https://lh3.googleusercontent.com/d/1zC0Q5wiMXWl9kzH9K-XRnVoGeAk5CAFJ";
+
+    // Embedded PNG fallback in case offline or Drive cross-origin blocks loading
+    const NELLY_MCS_LOGO_FALLBACK = "data:image/png;base64,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";
+
+    /**
+     * Format YYYY-MM-DD into "Monday 23rd November"
+     */
+    function formatPosterDate(isoDate) {
+      const [y, m, d] = isoDate.split('-').map(Number);
+      const dateObj = new Date(y, m - 1, d);
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const dayName = days[dateObj.getDay()];
+      const monthName = months[dateObj.getMonth()];
+      const suffix = (d >= 11 && d <= 13) ? 'th' : (d % 10 === 1 ? 'st' : (d % 10 === 2 ? 'nd' : (d % 10 === 3 ? 'rd' : 'th')));
+      return `${dayName} ${d}${suffix} ${monthName}`;
+    }
+
+    function getBadgeTypeForSport(sport, competition = '') {
+      const comp = (competition || '').toLowerCase();
+      if (comp.includes('champions league')) return 'ucl';
+      if (comp.includes('europa league')) return 'uel';
+      if (comp.includes('conference league')) return 'uecl';
+      if (comp.includes('premier league')) return 'premier-league';
+      if (comp.includes('qatar grand prix') || comp.includes('formula')) return 'f1';
+      if (comp.includes('autumn nations')) return 'rugby-intl';
+      if (comp.includes('leinster senior club')) return 'gaa';
+
+      const map = {
+        'Football': 'premier-league',
+        'Golf': 'pga-tour',
+        'Rugby Union': 'rugby-intl',
+        'Formula One': 'f1',
+        'Darts': 'darts',
+        'GAA': 'gaa'
+      };
+      return map[sport] || 'custom';
+    }
+
+    /**
+     * Weekly schedule JSON data for Monday, November 23 – Sunday, November 29, 2026
+     * Local Madrid Time (CET), filtered strictly between 11:30 and 23:59
+     */
+    const SCHEDULE_DATA = {
+      "metadata": {
+        "date_range": {
+          "from": "2026-11-23",
+          "to": "2026-11-29"
+        },
+        "timezone": "CET (+01:00)",
+        "time_filter": "11:30-23:59",
+        "generated_at": "2026-11-19T21:21:00+01:00"
+      },
+      "events": [
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 11",
+          "home_team": "Brentford",
+          "away_team": "Everton",
+          "venue": "Gtech Community Stadium, Brentford",
+          "date": "2026-11-23",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Galatasaray",
+          "away_team": "Aston Villa",
+          "venue": "RAMS Park, Istanbul",
+          "date": "2026-11-24",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Bodø/Glimt",
+          "away_team": "LASK",
+          "venue": "Aspmyra Stadion, Bodø",
+          "date": "2026-11-24",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Arsenal",
+          "away_team": "Borussia Dortmund",
+          "venue": "Emirates Stadium, London",
+          "date": "2026-11-24",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Manchester City",
+          "away_team": "Napoli",
+          "venue": "Etihad Stadium, Manchester",
+          "date": "2026-11-24",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Real Madrid",
+          "away_team": "PSV",
+          "venue": "Santiago Bernabéu, Madrid",
+          "date": "2026-11-24",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Feyenoord",
+          "away_team": "FC Porto",
+          "venue": "De Kuip, Rotterdam",
+          "date": "2026-11-24",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "RB Leipzig",
+          "away_team": "RC Lens",
+          "venue": "Red Bull Arena, Leipzig",
+          "date": "2026-11-24",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Slovan Bratislava",
+          "away_team": "Real Betis",
+          "venue": "Tehelné pole, Bratislava",
+          "date": "2026-11-24",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Como 1907",
+          "away_team": "AEK Athens",
+          "venue": "Stadio Giuseppe Sinigaglia, Como",
+          "date": "2026-11-24",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Slavia Prague",
+          "away_team": "Villarreal",
+          "venue": "Fortuna Arena, Prague",
+          "date": "2026-11-25",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Sabah FK",
+          "away_team": "FC Barcelona",
+          "venue": "Baku Olympic Stadium, Baku",
+          "date": "2026-11-25",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Sporting CP",
+          "away_team": "Manchester United",
+          "venue": "Estádio José Alvalade, Lisbon",
+          "date": "2026-11-25",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Club Brugge",
+          "away_team": "Liverpool",
+          "venue": "Jan Breydel Stadium, Bruges",
+          "date": "2026-11-25",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Paris Saint-Germain",
+          "away_team": "AS Roma",
+          "venue": "Parc des Princes, Paris",
+          "date": "2026-11-25",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Inter Milan",
+          "away_team": "VfB Stuttgart",
+          "venue": "San Siro, Milan",
+          "date": "2026-11-25",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Atlético Madrid",
+          "away_team": "Viking FK",
+          "venue": "Riyadh Air Metropolitano, Madrid",
+          "date": "2026-11-25",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "LOSC Lille",
+          "away_team": "Bayern Munich",
+          "venue": "Stade Pierre-Mauroy, Lille",
+          "date": "2026-11-25",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Champions League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Shakhtar Donetsk",
+          "away_team": "Fenerbahçe",
+          "venue": "Stamford Bridge, London",
+          "date": "2026-11-25",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Celta Vigo",
+          "away_team": "AFC Bournemouth",
+          "venue": "Estadio de Balaídos, Vigo",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Olympique de Marseille",
+          "away_team": "Levski Sofia",
+          "venue": "Stade Vélodrome, Marseille",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Beşiktaş",
+          "away_team": "Hapoel Be'er Sheva",
+          "venue": "Tüpraş Stadium, Istanbul",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Viktoria Plzeň",
+          "away_team": "Benfica",
+          "venue": "Doosan Arena, Plzeň",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Union Saint-Gilloise",
+          "away_team": "Lech Poznań",
+          "venue": "Den Dreef, Leuven",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Dinamo Zagreb",
+          "away_team": "Bayer Leverkusen",
+          "venue": "Stadion Maksimir, Zagreb",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Red Bull Salzburg",
+          "away_team": "Ararat-Armenia",
+          "venue": "Red Bull Arena, Salzburg",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Olympiacos",
+          "away_team": "AC Milan",
+          "venue": "Karaiskakis Stadium, Piraeus",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Sunderland",
+          "away_team": "Jagiellonia Białystok",
+          "venue": "Stadium of Light, Sunderland",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Crystal Palace",
+          "away_team": "Real Sociedad",
+          "venue": "Selhurst Park, London",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "SCU Torreense",
+          "away_team": "Celtic",
+          "venue": "Estádio Dr. Magalhães Pessoa, Leiria",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Juventus",
+          "away_team": "Omonoia",
+          "venue": "Allianz Stadium, Turin",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Sparta Prague",
+          "away_team": "AZ Alkmaar",
+          "venue": "epet ARENA, Prague",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "NEC Nijmegen",
+          "away_team": "Stade Rennais",
+          "venue": "Goffertstadion, Nijmegen",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "TSG Hoffenheim",
+          "away_team": "Sturm Graz",
+          "venue": "PreZero Arena, Sinsheim",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Olympique Lyonnais",
+          "away_team": "Lillestrøm",
+          "venue": "Groupama Stadium, Lyon",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "OFI Crete",
+          "away_team": "Anderlecht",
+          "venue": "Pankritio Stadium, Heraklion",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Europa League",
+          "stage": "League Phase - Matchday 5",
+          "home_team": "Ferencváros",
+          "away_team": "NK Celje",
+          "venue": "Groupama Aréna, Budapest",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "FC Kairat",
+          "away_team": "Mjällby AIF",
+          "venue": "Central Stadium, Almaty",
+          "date": "2026-11-26",
+          "time_cet": "16:30",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "Brighton & Hove Albion",
+          "away_team": "Universitatea Craiova",
+          "venue": "Amex Stadium, Brighton",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "Heart of Midlothian",
+          "away_team": "AS Monaco",
+          "venue": "Tynecastle Park, Edinburgh",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "SK Brann",
+          "away_team": "AGF Aarhus",
+          "venue": "Brann Stadion, Bergen",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "Pafos FC",
+          "away_team": "FC Midtjylland",
+          "venue": "Stelios Kyriakides Stadium, Paphos",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "FK Jablonec",
+          "away_team": "FC Lugano",
+          "venue": "Stadion Střelnice, Jablonec",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "Kauno Žalgiris",
+          "away_team": "Riga FC",
+          "venue": "Darius and Girėnas Stadium, Kaunas",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "AFC Ajax",
+          "away_team": "FC Thun",
+          "venue": "Johan Cruijff Arena, Amsterdam",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "KF Egnatia",
+          "away_team": "Lincoln Red Imps",
+          "venue": "Arena Egnatia, Rrogozhinë",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "FC Iberia 1999",
+          "away_team": "Getafe",
+          "venue": "Mikheil Meskhi Stadium, Tbilisi",
+          "date": "2026-11-26",
+          "time_cet": "18:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "SC Freiburg",
+          "away_team": "FC Twente",
+          "venue": "Europa-Park Stadion, Freiburg",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "FC Nordsjælland",
+          "away_team": "Panathinaikos",
+          "venue": "Right to Dream Park, Farum",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "Inter Club d'Escaldes",
+          "away_team": "FC Copenhagen",
+          "venue": "Estadi Comunal, Andorra la Vella",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "CSKA Sofia",
+          "away_team": "Trabzonspor",
+          "venue": "Balgarska Armia Stadium, Sofia",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "Hajduk Split",
+          "away_team": "Sint-Truiden",
+          "venue": "Stadion Poljud, Split",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "Borac Banja Luka",
+          "away_team": "Atalanta",
+          "venue": "Banja Luka City Stadium, Banja Luka",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "SC Braga",
+          "away_team": "KuPS",
+          "venue": "Estádio Municipal de Braga, Braga",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "UEFA Conference League",
+          "stage": "League Phase - Matchday 4",
+          "home_team": "KAA Gent",
+          "away_team": "Red Star Belgrade",
+          "venue": "Planet Group Arena, Ghent",
+          "date": "2026-11-26",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 12",
+          "home_team": "Nottingham Forest",
+          "away_team": "Chelsea",
+          "venue": "The City Ground, Nottingham",
+          "date": "2026-11-27",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 12",
+          "home_team": "Manchester United",
+          "away_team": "Brentford",
+          "venue": "Old Trafford, Manchester",
+          "date": "2026-11-28",
+          "time_cet": "16:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 12",
+          "home_team": "Leeds United",
+          "away_team": "Coventry City",
+          "venue": "Elland Road, Leeds",
+          "date": "2026-11-28",
+          "time_cet": "16:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 12",
+          "home_team": "Ipswich Town",
+          "away_team": "Aston Villa",
+          "venue": "Portman Road, Ipswich",
+          "date": "2026-11-28",
+          "time_cet": "18:30",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 12",
+          "home_team": "Everton",
+          "away_team": "Liverpool",
+          "venue": "Hill Dickinson Stadium, Liverpool",
+          "date": "2026-11-29",
+          "time_cet": "13:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 12",
+          "home_team": "Brighton & Hove Albion",
+          "away_team": "Newcastle United",
+          "venue": "Amex Stadium, Brighton",
+          "date": "2026-11-29",
+          "time_cet": "15:05",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 12",
+          "home_team": "Fulham",
+          "away_team": "AFC Bournemouth",
+          "venue": "Craven Cottage, London",
+          "date": "2026-11-29",
+          "time_cet": "15:05",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 12",
+          "home_team": "Sunderland",
+          "away_team": "Tottenham Hotspur",
+          "venue": "Stadium of Light, Sunderland",
+          "date": "2026-11-29",
+          "time_cet": "15:05",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 12",
+          "home_team": "Crystal Palace",
+          "away_team": "Hull City",
+          "venue": "Selhurst Park, London",
+          "date": "2026-11-29",
+          "time_cet": "15:05",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "Matchweek 12",
+          "home_team": "Arsenal",
+          "away_team": "Manchester City",
+          "venue": "Emirates Stadium, London",
+          "date": "2026-11-29",
+          "time_cet": "17:30",
+          "status": "not_started"
+        },
+        {
+          "sport": "GAA",
+          "competition": "Leinster Senior Club Football Championship",
+          "stage": "Semi-Final",
+          "home_team": "Wolfe Tones",
+          "away_team": "The Downs",
+          "venue": "Donaghmore-Ashbourne GAA Club",
+          "date": "2026-11-28",
+          "time_cet": "14:30",
+          "status": "not_started"
+        },
+        {
+          "sport": "GAA",
+          "competition": "Leinster Senior Club Football Championship",
+          "stage": "Semi-Final",
+          "home_team": "Cuala",
+          "away_team": "Portarlington",
+          "venue": "Parnell Park, Dublin",
+          "date": "2026-11-28",
+          "time_cet": "14:30",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "Autumn Nations Championship (Internationals)",
+          "stage": "Finals Weekend - 6th Place Play-off",
+          "home_team": "6th Place North",
+          "away_team": "6th Place South",
+          "venue": "Allianz Stadium, Twickenham",
+          "date": "2026-11-27",
+          "time_cet": "17:40",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "Autumn Nations Championship (Internationals)",
+          "stage": "Finals Weekend - 3rd Place Play-off",
+          "home_team": "3rd Place North",
+          "away_team": "3rd Place South",
+          "venue": "Allianz Stadium, Twickenham",
+          "date": "2026-11-27",
+          "time_cet": "21:10",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "Autumn Nations Championship (Internationals)",
+          "stage": "Finals Weekend - 5th Place Play-off",
+          "home_team": "5th Place North",
+          "away_team": "5th Place South",
+          "venue": "Allianz Stadium, Twickenham",
+          "date": "2026-11-28",
+          "time_cet": "14:10",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "Autumn Nations Championship (Internationals)",
+          "stage": "Finals Weekend - 2nd Place Play-off",
+          "home_team": "2nd Place North",
+          "away_team": "2nd Place South",
+          "venue": "Allianz Stadium, Twickenham",
+          "date": "2026-11-28",
+          "time_cet": "17:40",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "Autumn Nations Championship (Internationals)",
+          "stage": "Finals Weekend - 4th Place Play-off",
+          "home_team": "4th Place North",
+          "away_team": "4th Place South",
+          "venue": "Allianz Stadium, Twickenham",
+          "date": "2026-11-29",
+          "time_cet": "14:10",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "Autumn Nations Championship (Internationals)",
+          "stage": "Finals Weekend - Championship Final",
+          "home_team": "1st Place North",
+          "away_team": "1st Place South",
+          "venue": "Allianz Stadium, Twickenham",
+          "date": "2026-11-29",
+          "time_cet": "17:40",
+          "status": "not_started"
+        },
+        {
+          "sport": "Formula One",
+          "competition": "Qatar Grand Prix",
+          "stage": "Qualifying",
+          "venue": "Lusail International Circuit, Qatar",
+          "date": "2026-11-28",
+          "time_cet": "19:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Formula One",
+          "competition": "Qatar Grand Prix",
+          "stage": "Race",
+          "venue": "Lusail International Circuit, Qatar",
+          "date": "2026-11-29",
+          "time_cet": "17:00",
+          "status": "not_started"
+        }
+      ],
+      "inactive_or_filtered_competitions": [
+        {
+          "competition": "Scottish Premier League (Celtic vs Rangers)",
+          "reason": "No Old Firm derby scheduled this week (next fixture: 3 January 2027)"
+        },
+        {
+          "competition": "Football (World Cup, Euros, Nations League)",
+          "reason": "No tournament or international fixtures scheduled during 23–29 November 2026"
+        },
+        {
+          "competition": "GAA (Inter-County & Provincial Senior Hurling)",
+          "reason": "Inter-county season in off-season; provincial club senior hurling fixtures not scheduled in this window"
+        },
+        {
+          "competition": "Rugby Union (United Rugby Championship, European Rugby Champions Cup, 6 Nations)",
+          "reason": "Break for Autumn Nations Championship Finals Weekend; URC Round 6 resumes 4 December 2026, Champions Cup Round 2 resumes 11 December 2026, 6 Nations starts February 2027"
+        },
+        {
+          "competition": "Golf (Men's PGA Tour, DP World Tour, Ryder Cup)",
+          "reason": "DP World Tour BMW Australian PGA Championship (27–30 Nov) tees off in Brisbane outside the 11:30–23:59 CET window; PGA Tour Farmers Insurance Skins Game (27 Nov) starts at 01:00 CET; no Ryder Cup in 2026"
+        },
+        {
+          "competition": "Darts (PDC World Darts Championship)",
+          "reason": "Tournament begins 11 December 2026 at Alexandra Palace, London"
+        }
+      ]
+    };
+
+    const INITIAL_EVENTS = SCHEDULE_DATA.events.map((ev, index) => ({
+      id: `ev-${index + 1}`,
+      page: ev.sport === 'Football' ? 1 : 2,
+      sport: ev.sport,
+      competition:
+        ev.sport === 'Rugby Union' || ev.sport === 'GAA'
+          ? `${ev.competition} — ${ev.stage}`
+          : ev.competition,
+      badgeType: getBadgeTypeForSport(ev.sport, ev.competition),
+      dateSort: ev.date,
+      dateDisplay: formatPosterDate(ev.date),
+      time: ev.time_cet,
+      title:
+        ev.home_team && ev.away_team
+          ? `${ev.home_team} vs ${ev.away_team}`
+          : `${ev.competition} — ${ev.stage}`,
+      venue: ev.venue,
+      stage: ev.stage,
+      status: ev.status,
+      checked: false
+    }));
+
+    let events = JSON.parse(JSON.stringify(INITIAL_EVENTS));
+    let customNotes = [];
+
+    // Restore embedded state if opened from an exported .html file
+    const savedStateEl = document.getElementById('savedScheduleState');
+    if (savedStateEl && savedStateEl.textContent.trim()) {
+      try {
+        const parsed = JSON.parse(savedStateEl.textContent);
+        if (Array.isArray(parsed.events)) events = parsed.events;
+        if (Array.isArray(parsed.customNotes)) customNotes = parsed.customNotes;
+      } catch (e) {
+        console.warn('Could not parse embedded schedule state:', e);
+      }
+    }
+
+    const DRIVE_COMPETITION_LOGOS = {
+      'premier-league': {
+        url: 'https://lh3.googleusercontent.com/d/1iFpk0coXcDWGk-2HmJmFoVTWaL3iYZgI',
+        alt: 'English Premier League'
+      },
+      'ucl': {
+        url: 'https://lh3.googleusercontent.com/d/1n7n8nVOfY-GXhXw6LFDyjhqgS-98Bjaq',
+        alt: 'UEFA Champions League'
+      },
+      'uel': {
+        url: 'https://lh3.googleusercontent.com/d/1EWRWSi0MSyfk6hP57UfB1-NhuDfPoPcx',
+        alt: 'UEFA Europa League'
+      },
+      'uecl': {
+        url: 'https://lh3.googleusercontent.com/d/1a63WPGzFB4SEh1zz1LFJcZilagk2SgAF',
+        alt: 'UEFA Conference League'
+      },
+      'gaa': {
+        url: 'https://lh3.googleusercontent.com/d/19D5kgWD9m8CGpK-C-WwvM90QFY0bRsgP',
+        alt: 'GAA'
+      },
+      'f1': {
+        url: 'https://lh3.googleusercontent.com/d/15vmMNAwfo8A2nrXFE-6RZBs5V4U2rkJE',
+        alt: 'Formula One'
+      }
+    };
+
+    /**
+     * Inline SVG competition crests (fallback if offline or Drive cross-origin is blocked)
+     */
+    function getCompetitionFallbackSVG(badgeType) {
+      if (badgeType === 'premier-league') {
+        return `
+          <svg width="36" height="36" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" fill="#38003C"/>
+            <path d="M11 25L9 14l6 4.5L20 12l5 6.5L31 14l-2 11H11zm1.5 2.5h15V30h-15v-2.5z" fill="#FFFFFF"/>
+          </svg>
+        `;
+      }
+      if (badgeType === 'ucl') {
+        return `
+          <svg width="36" height="36" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" fill="#0E1E5B"/>
+            <text x="20" y="24" text-anchor="middle" fill="#FFFFFF" font-family="Raleway, Arial, sans-serif" font-weight="800" font-size="11">UCL</text>
+          </svg>
+        `;
+      }
+      if (badgeType === 'uel') {
+        return `
+          <svg width="36" height="36" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" fill="#F37021"/>
+            <text x="20" y="24" text-anchor="middle" fill="#FFFFFF" font-family="Raleway, Arial, sans-serif" font-weight="800" font-size="11">UEL</text>
+          </svg>
+        `;
+      }
+      if (badgeType === 'uecl') {
+        return `
+          <svg width="36" height="36" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" fill="#00BE14"/>
+            <text x="20" y="24" text-anchor="middle" fill="#FFFFFF" font-family="Raleway, Arial, sans-serif" font-weight="800" font-size="10">UECL</text>
+          </svg>
+        `;
+      }
+      if (badgeType === 'pga-tour') {
+        return `
+          <svg width="44" height="32" viewBox="0 0 48 34" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="44" height="30" rx="5" fill="#002F6C"/>
+            <text x="24" y="17" text-anchor="middle" fill="#FFFFFF" font-family="Raleway, Arial, sans-serif" font-weight="800" font-size="11" letter-spacing="0.8">PGA</text>
+            <text x="24" y="26" text-anchor="middle" fill="#93C5FD" font-family="Raleway, Arial, sans-serif" font-weight="700" font-size="7" letter-spacing="1.5">TOUR</text>
+          </svg>
+        `;
+      }
+      if (badgeType === 'rugby-intl') {
+        return `
+          <svg width="36" height="36" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" fill="#1E3A5F"/>
+            <ellipse cx="20" cy="20" rx="11" ry="6.5" transform="rotate(-35 20 20)" fill="none" stroke="#FFFFFF" stroke-width="2.2"/>
+            <line x1="16.5" y1="22.5" x2="23.5" y2="17.5" stroke="#FFFFFF" stroke-width="2"/>
+          </svg>
+        `;
+      }
+      if (badgeType === 'f1') {
+        return `
+          <svg width="44" height="32" viewBox="0 0 48 34" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="44" height="30" rx="5" fill="#E10600"/>
+            <text x="24" y="22" text-anchor="middle" fill="#FFFFFF" font-family="Raleway, Arial, sans-serif" font-weight="800" font-size="15">F1</text>
+          </svg>
+        `;
+      }
+      if (badgeType === 'darts') {
+        return `
+          <svg width="36" height="36" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" fill="#111827"/>
+            <circle cx="20" cy="20" r="12" fill="none" stroke="#EF4444" stroke-width="3"/>
+            <circle cx="20" cy="20" r="4" fill="#10B981"/>
+          </svg>
+        `;
+      }
+      if (badgeType === 'gaa') {
+        return `
+          <svg width="44" height="32" viewBox="0 0 48 34" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="44" height="30" rx="5" fill="#15803D"/>
+            <text x="24" y="22" text-anchor="middle" fill="#FFFFFF" font-family="Raleway, Arial, sans-serif" font-weight="800" font-size="12">GAA</text>
+          </svg>
+        `;
+      }
+      return `
+        <svg width="36" height="36" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="18" fill="#3B9CA4"/>
+          <circle cx="20" cy="20" r="7" fill="#FFFFFF"/>
+        </svg>
+      `;
+    }
+
+    function handleLogoError(imgEl, badgeType) {
+      imgEl.onerror = null;
+      if (imgEl.parentElement) {
+        imgEl.parentElement.innerHTML = getCompetitionFallbackSVG(badgeType);
+      }
+    }
+
+    function getCompetitionLogoHTML(badgeType) {
+      const driveLogo = DRIVE_COMPETITION_LOGOS[badgeType];
+      if (driveLogo) {
+        return `
+          <img
+            src="${driveLogo.url}"
+            onerror="handleLogoError(this, '${badgeType}')"
+            crossorigin="anonymous"
+            alt="${driveLogo.alt}"
+          />
+        `;
+      }
+      return getCompetitionFallbackSVG(badgeType);
+    }
+
+    /**
+     * Filter strictly to 11:30 - 23:59 CET and sort by Sport -> Date -> Time
+     */
+    function getSortedFilteredEvents() {
+      return events
+        .filter(ev => ev.time >= '11:30' && ev.time <= '23:59')
+        .sort((a, b) => {
+          const sportCmp = a.sport.localeCompare(b.sport);
+          if (sportCmp !== 0) return sportCmp;
+          const dateCmp = a.dateSort.localeCompare(b.dateSort);
+          if (dateCmp !== 0) return dateCmp;
+          return a.time.localeCompare(b.time);
+        });
+    }
+
+    /**
+     * Render the exact poster pages with your Raleway styling + interactive checkboxes & delete controls
+     */
+    function renderPoster() {
+      const wrapper = document.getElementById('posterPagesWrapper');
+      const emptyState = document.getElementById('emptyState');
+      const sorted = getSortedFilteredEvents();
+
+      updateCounters();
+
+      if (sorted.length === 0 && customNotes.length === 0) {
+        wrapper.innerHTML = '';
+        emptyState.classList.add('show');
+        return;
+      }
+
+      emptyState.classList.remove('show');
+
+      // Group into Poster Pages (Page 1, Page 2, etc.)
+      const pagesSet = new Set([
+        ...sorted.map(ev => String(ev.page)),
+        ...customNotes.map(n => String(n.page))
+      ]);
+      const pageNumbers = Array.from(pagesSet).sort((a, b) => Number(a) - Number(b));
+
+      const pagesMap = sorted.reduce((acc, ev) => {
+        if (!acc[ev.page]) acc[ev.page] = [];
+        acc[ev.page].push(ev);
+        return acc;
+      }, {});
+
+      let html = '';
+
+      pageNumbers.forEach(pageNum => {
+        const pageEvents = pagesMap[pageNum] || [];
+        const pageNotes = customNotes.filter(n => String(n.page) === String(pageNum));
+        const pageCheckedCount =
+          pageEvents.filter(e => e.checked).length +
+          pageNotes.filter(n => n.checked).length;
+        const pageAllUnchecked = pageCheckedCount === 0 ? 'all-unchecked' : '';
+
+        // Group by Sport within the page
+        const sportsMap = pageEvents.reduce((acc, ev) => {
+          if (!acc[ev.sport]) acc[ev.sport] = [];
+          acc[ev.sport].push(ev);
+          return acc;
+        }, {});
+
+        html += `
+          <div class="poster-page ${pageAllUnchecked}">
+            <header class="poster-header">
+              <img
+                src="${NELLY_MCS_LOGO_DRIVE_URL}"
+                onerror="this.onerror=null; this.src=NELLY_MCS_LOGO_FALLBACK;"
+                crossorigin="anonymous"
+                alt="Nelly Mc's Marbella"
+                class="brand-logo"
+              >
+              <h1 class="week-banner">Sports coverage - Week Starting 23rd November</h1>
+              <p class="helper-subtext no-export">Local Madrid Time (CET) &middot; Tick any fixture to include in PDF/Print</p>
+            </header>
+
+            <main class="schedule-content">
+        `;
+
+        Object.keys(sportsMap).forEach((sportName, sportIndex) => {
+          const sportEvents = sportsMap[sportName];
+          const sportCheckedCount = sportEvents.filter(e => e.checked).length;
+          const sportAllUnchecked = sportCheckedCount === 0 ? 'all-unchecked' : '';
+          const topMarginClass = sportIndex > 0 ? 'mt-large' : '';
+
+          // Group by Day within each Sport
+          const daysMap = sportEvents.reduce((acc, ev) => {
+            if (!acc[ev.dateDisplay]) acc[ev.dateDisplay] = [];
+            acc[ev.dateDisplay].push(ev);
+            return acc;
+          }, {});
+
+          html += `
+            <div class="sport-block ${sportAllUnchecked}">
+              <div class="sport-category ${topMarginClass}">
+                <h2>${sportName}</h2>
+              </div>
+          `;
+
+          Object.keys(daysMap).forEach(dayTitle => {
+            const dayEvents = daysMap[dayTitle];
+            const dayCheckedCount = dayEvents.filter(e => e.checked).length;
+            const dayAllUnchecked = dayCheckedCount === 0 ? 'all-unchecked' : '';
+
+            html += `
+              <section class="day-group ${dayAllUnchecked}">
+                <h3 class="day-title">${dayTitle}</h3>
+            `;
+
+            dayEvents.forEach(ev => {
+              html += `
+                <div class="match-row ${ev.checked ? '' : 'is-unchecked'}" data-id="${ev.id}">
+                  <div class="row-left">
+                    <input
+                      type="checkbox"
+                      id="chk-${ev.id}"
+                      class="event-checkbox no-export"
+                      ${ev.checked ? 'checked' : ''}
+                      onchange="toggleEvent('${ev.id}')"
+                      aria-label="Include ${ev.title}"
+                    />
+                    <label for="chk-${ev.id}" class="fixture-info">
+                      <div class="competition-logo">
+                        ${getCompetitionLogoHTML(ev.badgeType)}
+                      </div>
+                      <span class="teams">${ev.title}</span>
+                      <span class="competition-badge">${ev.competition}</span>
+                    </label>
+                  </div>
+
+                  <div class="row-right">
+                    <div class="kickoff-time">${ev.time}</div>
+                    <button
+                      type="button"
+                      class="delete-row-btn no-export"
+                      onclick="deleteSingleEvent('${ev.id}')"
+                      title="Delete fixture"
+                      aria-label="Delete ${ev.title}"
+                    >&times;</button>
+                  </div>
+                </div>
+              `;
+            });
+
+            html += `
+              </section>
+            `;
+          });
+
+          html += `
+            </div>
+          `;
+        });
+
+        // Render any additional custom text notes on this poster page
+        if (pageNotes.length > 0) {
+          const notesCheckedCount = pageNotes.filter(n => n.checked).length;
+          const notesAllUnchecked = notesCheckedCount === 0 ? 'all-unchecked' : '';
+          html += `<div class="custom-notes-section ${notesAllUnchecked}">`;
+          pageNotes.forEach(note => {
+            html += `
+              <div class="custom-note-row ${note.checked ? '' : 'is-unchecked'}">
+                <div class="row-left">
+                  <input
+                    type="checkbox"
+                    id="note-${note.id}"
+                    class="event-checkbox no-export"
+                    ${note.checked ? 'checked' : ''}
+                    onchange="toggleNote('${note.id}')"
+                    aria-label="Include note"
+                  />
+                  <label for="note-${note.id}" class="note-text">${note.text}</label>
+                </div>
+                <button
+                  type="button"
+                  class="delete-row-btn no-export"
+                  onclick="deleteSingleNote('${note.id}')"
+                  title="Delete text"
+                  aria-label="Delete text"
+                >&times;</button>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+
+        html += `
+            </main>
+          </div>
+        `;
+      });
+
+      wrapper.innerHTML = html;
+    }
+
+    function updateCounters() {
+      const unchecked =
+        events.filter(e => !e.checked).length +
+        customNotes.filter(n => !n.checked).length;
+      document.getElementById('uncheckedCount').textContent = unchecked;
+    }
+
+    function toggleAddPanel() {
+      const panel = document.getElementById('addPanel');
+      const btn = document.getElementById('toggleAddBtn');
+      const isOpen = panel.classList.toggle('open');
+      btn.textContent = isOpen ? 'Close Add Panel' : '+ Add Event / Text';
+    }
+
+    function addManualEvent() {
+      const sport = document.getElementById('newSport').value.trim();
+      const competition = document.getElementById('newCompetition').value.trim() || sport;
+      const dateSort = document.getElementById('newDate').value;
+      const time = document.getElementById('newTime').value;
+      const title = document.getElementById('newTitle').value.trim();
+      const page = Number(document.getElementById('newEventPage').value) || 1;
+
+      if (!title) {
+        showToast('Please enter a match or event title.', 'error');
+        return;
+      }
+      if (!dateSort || !time) {
+        showToast('Please select both a date and kickoff time.', 'error');
+        return;
+      }
+      if (time < '11:30' || time > '23:59') {
+        showToast('Time must be between 11:30 and 23:59 Madrid time.', 'error');
+        return;
+      }
+
+      events.push({
+        id: 'custom-ev-' + Date.now(),
+        page,
+        sport,
+        competition,
+        badgeType: getBadgeTypeForSport(sport, competition),
+        dateSort,
+        dateDisplay: formatPosterDate(dateSort),
+        time,
+        title,
+        checked: true
+      });
+
+      document.getElementById('newTitle').value = '';
+      renderPoster();
+      showToast(`Added "${title}" (${time}) to Page ${page}.`, 'success');
+    }
+
+    function addCustomText() {
+      const text = document.getElementById('newNoteText').value.trim();
+      const page = Number(document.getElementById('newNotePage').value) || 1;
+
+      if (!text) {
+        showToast('Please enter some text before adding.', 'error');
+        return;
+      }
+
+      customNotes.push({
+        id: 'custom-note-' + Date.now(),
+        page,
+        text,
+        checked: true
+      });
+
+      document.getElementById('newNoteText').value = '';
+      renderPoster();
+      showToast(`Added text note to Page ${page}.`, 'success');
+    }
+
+    function toggleNote(id) {
+      const target = customNotes.find(n => n.id === id);
+      if (target) {
+        target.checked = !target.checked;
+        renderPoster();
+      }
+    }
+
+    function deleteSingleNote(id) {
+      customNotes = customNotes.filter(n => n.id !== id);
+      renderPoster();
+    }
+
+    function toggleEvent(id) {
+      const target = events.find(e => e.id === id);
+      if (target) {
+        target.checked = !target.checked;
+        renderPoster();
+      }
+    }
+
+    function selectAllEvents() {
+      events.forEach(e => (e.checked = true));
+      customNotes.forEach(n => (n.checked = true));
+      renderPoster();
+      showToast('All fixtures and notes selected.', 'info');
+    }
+
+    function deleteUncheckedEvents() {
+      const before = events.length + customNotes.length;
+      events = events.filter(e => e.checked);
+      customNotes = customNotes.filter(n => n.checked);
+      const removed = before - (events.length + customNotes.length);
+      renderPoster();
+      if (removed > 0) {
+        showToast(`Deleted ${removed} unchecked item${removed === 1 ? '' : 's'}.`, 'info');
+      } else {
+        showToast('No unchecked items to delete.', 'info');
+      }
+    }
+
+    function deleteSingleEvent(id) {
+      events = events.filter(e => e.id !== id);
+      renderPoster();
+    }
+
+    function resetAllEvents() {
+      events = JSON.parse(JSON.stringify(INITIAL_EVENTS));
+      customNotes = [];
+      renderPoster();
+      showToast(`Schedule reset to all ${INITIAL_EVENTS.length} weekly fixtures.`, 'info');
+    }
+
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('statusToast');
+      toast.textContent = msg;
+      toast.className = `status-toast no-export show ${type}`;
+    }
+
+    const MAX_PDF_PAGES = 2;
+
+    function clearAutoFormatClasses() {
+      document.querySelectorAll('#posterPagesWrapper .poster-page').forEach(pageEl => {
+        pageEl.classList.remove(
+          'auto-format-medium',
+          'auto-format-compact',
+          'auto-format-ultra',
+          'pdf-export-mode'
+        );
+      });
+    }
+
+    function applyAutoFormatClasses() {
+      clearAutoFormatClasses();
+      const activePages = Array.from(
+        document.querySelectorAll('#posterPagesWrapper .poster-page:not(.all-unchecked)')
+      );
+      activePages.forEach(pageEl => {
+        const visibleRows = pageEl.querySelectorAll(
+          '.match-row:not(.is-unchecked), .custom-note-row:not(.is-unchecked)'
+        ).length;
+        if (visibleRows >= 29) {
+          pageEl.classList.add('auto-format-ultra');
+        } else if (visibleRows >= 15) {
+          pageEl.classList.add('auto-format-compact');
+        } else if (visibleRows >= 10) {
+          pageEl.classList.add('auto-format-medium');
+        }
+      });
+      return activePages;
+    }
+
+    /**
+     * Export checked fixtures directly to Nelly Mc's Weekly_Sport_dd_mmm_yyyy.pdf
+     * Enforces a hard maximum of 2 pages and auto-formats each poster page to fit.
+     */
+    async function exportToPDF() {
+      const checkedCount = events.filter(e => e.checked).length;
+      if (checkedCount === 0) {
+        showToast('Please select at least one fixture before exporting to .pdf.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('exportPdfBtn');
+      const label = document.getElementById('exportPdfLabel');
+      const wrapper = document.getElementById('posterPagesWrapper');
+      const exportFileName = `${getFormattedExportBaseName()}.pdf`;
+
+      btn.disabled = true;
+      label.textContent = 'Exporting .pdf...';
+      wrapper.classList.add('pdf-export-mode');
+
+      const activePages = applyAutoFormatClasses().slice(0, MAX_PDF_PAGES);
+      activePages.forEach(pageEl => pageEl.classList.add('pdf-export-mode'));
+
+      const options = {
+        margin: [6, 6, 6, 6],
+        filename: exportFileName,
+        image: { type: 'png', quality: 1 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: '#FFFFFF',
+          logging: false
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait'
+        }
+      };
+
+      try {
+        if (typeof html2pdf === 'undefined') {
+          throw new Error('PDF generator unavailable');
+        }
+        if (activePages.length === 0) {
+          showToast('No active pages to export.', 'error');
+          return;
+        }
+
+        const probeCanvas = document.createElement('canvas');
+        probeCanvas.width = 1;
+        probeCanvas.height = 1;
+        const probePdf = await html2pdf().set(options).from(probeCanvas).toPdf().get('pdf');
+        const doc = new probePdf.constructor(options.jsPDF);
+
+        const margin = 6;
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+        const maxW = pageW - margin * 2;
+        const maxH = pageH - margin * 2;
+
+        for (let i = 0; i < activePages.length; i++) {
+          const pageCanvas = await html2pdf()
+            .set(options)
+            .from(activePages[i])
+            .toCanvas()
+            .get('canvas');
+
+          const imgW = pageCanvas.width;
+          const imgH = pageCanvas.height;
+          const scale = Math.min(maxW / imgW, maxH / imgH);
+          const drawW = imgW * scale;
+          const drawH = imgH * scale;
+          const x = margin + (maxW - drawW) / 2;
+          const y = margin;
+
+          if (i > 0) {
+            doc.addPage();
+          }
+          const imgData = pageCanvas.toDataURL('image/png', 1.0);
+          doc.addImage(imgData, 'PNG', x, y, drawW, drawH);
+        }
+
+        doc.save(exportFileName);
+        showToast(
+          `Exported ${exportFileName} (${activePages.length} page${activePages.length === 1 ? '' : 's'}) successfully!`,
+          'success'
+        );
+      } catch (err) {
+        console.warn('Direct PDF download blocked, falling back to print dialog:', err);
+        showToast('Opening print-to-PDF dialog...', 'info');
+        window.print();
+      } finally {
+        clearAutoFormatClasses();
+        wrapper.classList.remove('pdf-export-mode');
+        btn.disabled = false;
+        label.textContent = 'Export to .pdf';
+      }
+    }
+
+    /**
+     * Export current HTML file as Nelly Mc's Weekly_Sport_dd_mmm_yyyy.html
+     * Preserves all manually added events, custom text notes, and checkbox states!
+     */
+    function exportToHTML() {
+      const exportFileName = `${getFormattedExportBaseName()}.html`;
+      let stateTag = document.getElementById('savedScheduleState');
+      if (!stateTag) {
+        stateTag = document.createElement('script');
+        stateTag.id = 'savedScheduleState';
+        stateTag.type = 'application/json';
+        document.body.appendChild(stateTag);
+      }
+      stateTag.textContent = JSON.stringify({ events, customNotes });
+
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = exportFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast(`Exported ${exportFileName} successfully!`, 'success');
+    }
+
+    /**
+     * Native Browser Print
+     */
+    function printSchedule() {
+      const checkedCount = events.filter(e => e.checked).length;
+      if (checkedCount === 0) {
+        showToast('Please select at least one fixture before printing.', 'error');
+        return;
+      }
+      applyAutoFormatClasses();
+      const cleanup = () => {
+        clearAutoFormatClasses();
+        window.removeEventListener('afterprint', cleanup);
+      };
+      window.addEventListener('afterprint', cleanup);
+      window.print();
+    }
+
+    window.addEventListener('unhandledrejection', function (event) {
+      if (event && event.reason && event.reason.isTrusted) {
+        event.preventDefault();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', renderPoster);
+  </script>
+</body>
+
+</html>

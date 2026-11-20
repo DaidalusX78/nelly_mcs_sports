@@ -1,0 +1,45 @@
+
+- [ ] updated file name so please can you revise the number (also add to the app) upon updates and here is the repo https://github.com/DaidalusX78/nelly_mcs_sports.git. Please add a readme file etc. 
+- [ ] This app will be run once a week to generate a sports list so I would like your opinion, web, pwa or app?
+- [ ] Here is the clean reference list of APIs and endpoints recommended to wire into Antigravity for automating live fixture ingestion across your target sports:
+
+1. API-Sports (api-sports.io) — Football & Rugby Union
+Requires a free account API key sent via the x-apisports-key request header (100 requests/day per sport on the free tier).
+
+API-Football: [https://v3.football.api-sports.io/](https://v3.football.api-sports.io/)
+
+Fixtures endpoint: /fixtures?from=YYYY-MM-DD&to=YYYY-MM-DD&timezone=Europe/Madrid (can also filter by league ID and season).
+
+Covers: English Premier League, UEFA Champions League, UEFA Europa League, UEFA Conference League, Scottish Premiership (filter results to Celtic vs Rangers), World Cup, Euros, and Nations League.
+
+API-Rugby: [https://v1.rugby.api-sports.io/](https://v1.rugby.api-sports.io/)
+
+Games endpoint: /games?date=YYYY-MM-DD&timezone=Europe/Madrid (or filter by league ID and season).
+
+Covers: Rugby Union Internationals, United Rugby Championship, European Rugby Champions Cup, and Six Nations.
+
+2. Jolpica F1 (api.jolpi.ca) — Formula 1
+Free, open-source Ergast-compatible API with no API key required. Include a custom User-Agent header in your requests.
+
+Base URL: [https://api.jolpi.ca/ergast/f1/](https://api.jolpi.ca/ergast/f1/)
+
+Season / Round endpoints: /2026.json, /2026/{round}.json, /2026/{round}/qualifying.json, /2026/{round}/sprint.json.
+
+Covers: Qualifying, Sprint, and Race UTC dates/times.
+
+3. ESPN Public JSON Endpoints — Golf, Darts & Extra Coverage
+Undocumented public JSON feeds (no API key required; handle schema/availability defensively in your fetcher).
+
+Base Pattern: [https://site.api.espn.com/apis/site/v2/sports/](https://site.api.espn.com/apis/site/v2/sports/){sport}/{league}/scoreboard
+
+Useful paths: /golf/pga/scoreboard, /golf/eur/scoreboard, /soccer/eng.1/scoreboard, /rugby/six-nations/scoreboard, /rugby/urc/scoreboard, /racing/f1/scoreboard.
+
+4. Other Free Options Mentioned
+TheSportsDB (thesportsdb.com): Multi-sport aggregator (free test key 3, or low-cost Patreon key for full results).
+
+Football-Data.org (football-data.org): Free tier (10 calls/min), useful for major football leagues/tournaments though narrower in league breadth than API-Football.
+
+Official .ics / iCal Feeds: Practical fallback for GAA (Senior Football and Hurling) where free JSON APIs have sparse or delayed coverage.
+
+Quick Antigravity Integration Tip
+When building your fetcher module in Antigravity, store your API_SPORTS_KEY in a .env file (never hardcode it in client-side HTML), normalize every event into { sport, competition, stage, home_team, away_team, venue, date, time_cet }, convert timestamps to Europe/Madrid, filter to 11:30–23:59, and write the resulting array into INITIAL_EVENTS in your schedule HTML.
