@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nelly Mc's Marbella - Sports Coverage (v01.07)</title>
+  <title>Nelly Mc's Marbella - Sports Coverage (v01.08)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -851,10 +851,10 @@
   <!-- Interactive Toolbar (Hidden on PDF Export & Print) -->
   <div class="control-bar no-export">
     <div class="control-group">
-      <span class="version-badge" id="toolbarVersionBadge">v01.07</span>
+      <span class="version-badge" id="toolbarVersionBadge">v01.08</span>
       <div class="week-picker-box">
         <label for="toolbarWeekDate" class="week-picker-label">Week:</label>
-        <input type="date" id="toolbarWeekDate" class="week-picker-input" value="2026-11-23" title="Pick any date (auto-snaps to Monday of that week)" />
+        <input type="date" id="toolbarWeekDate" class="week-picker-input" value="2026-11-30" title="Pick any date (auto-snaps to Monday of that week)" />
         <button type="button" id="fetchWeekBtn" class="btn btn-primary" onclick="fetchWeekInBrowser()" title="Fetch live Monday–Sunday fixtures (11:30–23:59 Madrid time)">
           <span id="fetchWeekLabel">Fetch Week</span>
         </button>
@@ -920,7 +920,7 @@
         </div>
         <div class="form-field">
           <label for="newDate">Date</label>
-          <input type="date" id="newDate" value="2026-11-23" />
+          <input type="date" id="newDate" value="2026-11-30" />
         </div>
         <div class="form-field">
           <label for="newTime">Madrid Time (11:30–23:59)</label>
@@ -978,13 +978,13 @@
 
   <!-- Designer Credit (HTML View Only, Excluded from PDF & Print) -->
   <footer class="designer-credit no-export">
-    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.07</span>
+    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.08</span>
   </footer>
 
   <script>
-    const APP_VERSION = 'v01.07';
+    const APP_VERSION = 'v01.08';
     // Week start date (Monday) used for dynamic export filenames: dd_mmm_yyyy
-    let WEEK_START_DATE = new Date(2026, 10, 23); // November 23, 2026
+    let WEEK_START_DATE = new Date(2026, 10, 30); // 2026-11-30
 
     function getWeekBannerText(dateObj = WEEK_START_DATE) {
       const d = dateObj.getDate();
@@ -1073,866 +1073,355 @@
     }
 
     /**
-     * Weekly schedule JSON data for Monday, November 23 – Sunday, November 29, 2026
+     * Weekly schedule JSON data for Monday, November 30, 2026 – Sunday, December 6, 2026
      * Local Madrid Time (CET), filtered strictly between 11:30 and 23:59
      */
     const SCHEDULE_DATA = {
       "metadata": {
         "date_range": {
-          "from": "2026-11-23",
-          "to": "2026-11-29"
+          "from": "2026-11-30",
+          "to": "2026-12-06"
         },
-        "timezone": "CET (+01:00)",
+        "timezone": "CET/CEST (+01:00)",
         "time_filter": "11:30-23:59",
-        "generated_at": "2026-11-19T21:21:00+01:00"
+        "generated_at": "2026-11-20T19:05:00+01:00"
       },
       "events": [
         {
           "sport": "Football",
           "competition": "English Premier League",
-          "stage": "Matchweek 11",
-          "home_team": "Brentford",
-          "away_team": "Everton",
-          "venue": "Gtech Community Stadium, Brentford",
-          "date": "2026-11-23",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Coventry City",
+          "away_team": "Ipswich Town",
+          "venue": "Coventry Building Society Arena, Coventry",
+          "date": "2026-12-01",
           "time_cet": "21:00",
           "status": "not_started"
         },
         {
           "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Galatasaray",
-          "away_team": "Aston Villa",
-          "venue": "RAMS Park, Istanbul",
-          "date": "2026-11-24",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Bodø/Glimt",
-          "away_team": "LASK",
-          "venue": "Aspmyra Stadion, Bodø",
-          "date": "2026-11-24",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Arsenal",
-          "away_team": "Borussia Dortmund",
-          "venue": "Emirates Stadium, London",
-          "date": "2026-11-24",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Manchester City",
-          "away_team": "Napoli",
-          "venue": "Etihad Stadium, Manchester",
-          "date": "2026-11-24",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Real Madrid",
-          "away_team": "PSV",
-          "venue": "Santiago Bernabéu, Madrid",
-          "date": "2026-11-24",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Feyenoord",
-          "away_team": "FC Porto",
-          "venue": "De Kuip, Rotterdam",
-          "date": "2026-11-24",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "RB Leipzig",
-          "away_team": "RC Lens",
-          "venue": "Red Bull Arena, Leipzig",
-          "date": "2026-11-24",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Slovan Bratislava",
-          "away_team": "Real Betis",
-          "venue": "Tehelné pole, Bratislava",
-          "date": "2026-11-24",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Como 1907",
-          "away_team": "AEK Athens",
-          "venue": "Stadio Giuseppe Sinigaglia, Como",
-          "date": "2026-11-24",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Slavia Prague",
-          "away_team": "Villarreal",
-          "venue": "Fortuna Arena, Prague",
-          "date": "2026-11-25",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Sabah FK",
-          "away_team": "FC Barcelona",
-          "venue": "Baku Olympic Stadium, Baku",
-          "date": "2026-11-25",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Sporting CP",
-          "away_team": "Manchester United",
-          "venue": "Estádio José Alvalade, Lisbon",
-          "date": "2026-11-25",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Club Brugge",
-          "away_team": "Liverpool",
-          "venue": "Jan Breydel Stadium, Bruges",
-          "date": "2026-11-25",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Paris Saint-Germain",
-          "away_team": "AS Roma",
-          "venue": "Parc des Princes, Paris",
-          "date": "2026-11-25",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Inter Milan",
-          "away_team": "VfB Stuttgart",
-          "venue": "San Siro, Milan",
-          "date": "2026-11-25",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Atlético Madrid",
-          "away_team": "Viking FK",
-          "venue": "Riyadh Air Metropolitano, Madrid",
-          "date": "2026-11-25",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "LOSC Lille",
-          "away_team": "Bayern Munich",
-          "venue": "Stade Pierre-Mauroy, Lille",
-          "date": "2026-11-25",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Champions League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Shakhtar Donetsk",
-          "away_team": "Fenerbahçe",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Chelsea",
+          "away_team": "Crystal Palace",
           "venue": "Stamford Bridge, London",
-          "date": "2026-11-25",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Celta Vigo",
-          "away_team": "AFC Bournemouth",
-          "venue": "Estadio de Balaídos, Vigo",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Olympique de Marseille",
-          "away_team": "Levski Sofia",
-          "venue": "Stade Vélodrome, Marseille",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Beşiktaş",
-          "away_team": "Hapoel Be'er Sheva",
-          "venue": "Tüpraş Stadium, Istanbul",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Viktoria Plzeň",
-          "away_team": "Benfica",
-          "venue": "Doosan Arena, Plzeň",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Union Saint-Gilloise",
-          "away_team": "Lech Poznań",
-          "venue": "Den Dreef, Leuven",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Dinamo Zagreb",
-          "away_team": "Bayer Leverkusen",
-          "venue": "Stadion Maksimir, Zagreb",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Red Bull Salzburg",
-          "away_team": "Ararat-Armenia",
-          "venue": "Red Bull Arena, Salzburg",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Olympiacos",
-          "away_team": "AC Milan",
-          "venue": "Karaiskakis Stadium, Piraeus",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Sunderland",
-          "away_team": "Jagiellonia Białystok",
-          "venue": "Stadium of Light, Sunderland",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Crystal Palace",
-          "away_team": "Real Sociedad",
-          "venue": "Selhurst Park, London",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "SCU Torreense",
-          "away_team": "Celtic",
-          "venue": "Estádio Dr. Magalhães Pessoa, Leiria",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Juventus",
-          "away_team": "Omonoia",
-          "venue": "Allianz Stadium, Turin",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Sparta Prague",
-          "away_team": "AZ Alkmaar",
-          "venue": "epet ARENA, Prague",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "NEC Nijmegen",
-          "away_team": "Stade Rennais",
-          "venue": "Goffertstadion, Nijmegen",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "TSG Hoffenheim",
-          "away_team": "Sturm Graz",
-          "venue": "PreZero Arena, Sinsheim",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Olympique Lyonnais",
-          "away_team": "Lillestrøm",
-          "venue": "Groupama Stadium, Lyon",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "OFI Crete",
-          "away_team": "Anderlecht",
-          "venue": "Pankritio Stadium, Heraklion",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Europa League",
-          "stage": "League Phase - Matchday 5",
-          "home_team": "Ferencváros",
-          "away_team": "NK Celje",
-          "venue": "Groupama Aréna, Budapest",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "FC Kairat",
-          "away_team": "Mjällby AIF",
-          "venue": "Central Stadium, Almaty",
-          "date": "2026-11-26",
-          "time_cet": "16:30",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "Brighton & Hove Albion",
-          "away_team": "Universitatea Craiova",
-          "venue": "Amex Stadium, Brighton",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "Heart of Midlothian",
-          "away_team": "AS Monaco",
-          "venue": "Tynecastle Park, Edinburgh",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "SK Brann",
-          "away_team": "AGF Aarhus",
-          "venue": "Brann Stadion, Bergen",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "Pafos FC",
-          "away_team": "FC Midtjylland",
-          "venue": "Stelios Kyriakides Stadium, Paphos",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "FK Jablonec",
-          "away_team": "FC Lugano",
-          "venue": "Stadion Střelnice, Jablonec",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "Kauno Žalgiris",
-          "away_team": "Riga FC",
-          "venue": "Darius and Girėnas Stadium, Kaunas",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "AFC Ajax",
-          "away_team": "FC Thun",
-          "venue": "Johan Cruijff Arena, Amsterdam",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "KF Egnatia",
-          "away_team": "Lincoln Red Imps",
-          "venue": "Arena Egnatia, Rrogozhinë",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "FC Iberia 1999",
-          "away_team": "Getafe",
-          "venue": "Mikheil Meskhi Stadium, Tbilisi",
-          "date": "2026-11-26",
-          "time_cet": "18:45",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "SC Freiburg",
-          "away_team": "FC Twente",
-          "venue": "Europa-Park Stadion, Freiburg",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "FC Nordsjælland",
-          "away_team": "Panathinaikos",
-          "venue": "Right to Dream Park, Farum",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "Inter Club d'Escaldes",
-          "away_team": "FC Copenhagen",
-          "venue": "Estadi Comunal, Andorra la Vella",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "CSKA Sofia",
-          "away_team": "Trabzonspor",
-          "venue": "Balgarska Armia Stadium, Sofia",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "Hajduk Split",
-          "away_team": "Sint-Truiden",
-          "venue": "Stadion Poljud, Split",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "Borac Banja Luka",
-          "away_team": "Atalanta",
-          "venue": "Banja Luka City Stadium, Banja Luka",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "SC Braga",
-          "away_team": "KuPS",
-          "venue": "Estádio Municipal de Braga, Braga",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "UEFA Conference League",
-          "stage": "League Phase - Matchday 4",
-          "home_team": "KAA Gent",
-          "away_team": "Red Star Belgrade",
-          "venue": "Planet Group Arena, Ghent",
-          "date": "2026-11-26",
-          "time_cet": "21:00",
+          "date": "2026-12-02",
+          "time_cet": "20:30",
           "status": "not_started"
         },
         {
           "sport": "Football",
           "competition": "English Premier League",
-          "stage": "Matchweek 12",
-          "home_team": "Nottingham Forest",
-          "away_team": "Chelsea",
-          "venue": "The City Ground, Nottingham",
-          "date": "2026-11-27",
-          "time_cet": "21:00",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Hull City",
+          "away_team": "Nottingham Forest",
+          "venue": "The MKM Stadium, Hull",
+          "date": "2026-12-02",
+          "time_cet": "20:30",
           "status": "not_started"
         },
         {
           "sport": "Football",
           "competition": "English Premier League",
-          "stage": "Matchweek 12",
-          "home_team": "Manchester United",
-          "away_team": "Brentford",
-          "venue": "Old Trafford, Manchester",
-          "date": "2026-11-28",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Liverpool",
+          "away_team": "Sunderland",
+          "venue": "Anfield, Liverpool",
+          "date": "2026-12-02",
+          "time_cet": "20:30",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Manchester City",
+          "away_team": "Leeds United",
+          "venue": "Etihad Stadium, Manchester",
+          "date": "2026-12-02",
+          "time_cet": "20:30",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "AFC Bournemouth",
+          "away_team": "Brighton & Hove Albion",
+          "venue": "Vitality Stadium, Bournemouth",
+          "date": "2026-12-02",
+          "time_cet": "21:15",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Aston Villa",
+          "away_team": "Everton",
+          "venue": "Villa Park, Birmingham",
+          "date": "2026-12-02",
+          "time_cet": "21:15",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Brentford",
+          "away_team": "Arsenal",
+          "venue": "Gtech Community Stadium, Brentford",
+          "date": "2026-12-02",
+          "time_cet": "21:15",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Newcastle United",
+          "away_team": "Manchester United",
+          "venue": "St. James' Park, Newcastle-upon-Tyne",
+          "date": "2026-12-02",
+          "time_cet": "21:15",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Tottenham Hotspur",
+          "away_team": "Fulham",
+          "venue": "Tottenham Hotspur Stadium, London",
+          "date": "2026-12-03",
+          "time_cet": "21:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "United Rugby Championship",
+          "stage": "united-rugby-championship",
+          "home_team": "Ospreys",
+          "away_team": "Leinster",
+          "venue": "St Helen's Rugby and Cricket Ground, Swansea",
+          "date": "2026-12-04",
+          "time_cet": "20:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "United Rugby Championship",
+          "stage": "united-rugby-championship",
+          "home_team": "Edinburgh",
+          "away_team": "Dragons",
+          "venue": "Hive Stadium, Edinburgh",
+          "date": "2026-12-04",
+          "time_cet": "20:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Chelsea",
+          "away_team": "Liverpool",
+          "venue": "Stamford Bridge, London",
+          "date": "2026-12-05",
+          "time_cet": "13:30",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "United Rugby Championship",
+          "stage": "united-rugby-championship",
+          "home_team": "Lions",
+          "away_team": "Bulls",
+          "venue": "Ellis Park, Johannesburg",
+          "date": "2026-12-05",
+          "time_cet": "13:30",
+          "status": "not_started"
+        },
+        {
+          "sport": "Formula One",
+          "competition": "Abu Dhabi Grand Prix",
+          "stage": "Qualifying",
+          "venue": "Yas Marina Circuit, UAE",
+          "date": "2026-12-05",
+          "time_cet": "15:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "AFC Bournemouth",
+          "away_team": "Hull City",
+          "venue": "Vitality Stadium, Bournemouth",
+          "date": "2026-12-05",
           "time_cet": "16:00",
           "status": "not_started"
         },
         {
           "sport": "Football",
           "competition": "English Premier League",
-          "stage": "Matchweek 12",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Aston Villa",
+          "away_team": "Crystal Palace",
+          "venue": "Villa Park, Birmingham",
+          "date": "2026-12-05",
+          "time_cet": "16:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
           "home_team": "Leeds United",
-          "away_team": "Coventry City",
+          "away_team": "Ipswich Town",
           "venue": "Elland Road, Leeds",
-          "date": "2026-11-28",
+          "date": "2026-12-05",
           "time_cet": "16:00",
           "status": "not_started"
         },
         {
           "sport": "Football",
           "competition": "English Premier League",
-          "stage": "Matchweek 12",
-          "home_team": "Ipswich Town",
-          "away_team": "Aston Villa",
-          "venue": "Portman Road, Ipswich",
-          "date": "2026-11-28",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Manchester United",
+          "away_team": "Coventry City",
+          "venue": "Old Trafford, Manchester",
+          "date": "2026-12-05",
+          "time_cet": "16:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "United Rugby Championship",
+          "stage": "united-rugby-championship",
+          "home_team": "Sharks",
+          "away_team": "Stormers",
+          "venue": "Hollywoodbets Kings Park, Durban",
+          "date": "2026-12-05",
+          "time_cet": "16:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "United Rugby Championship",
+          "stage": "united-rugby-championship",
+          "home_team": "Cardiff Blues",
+          "away_team": "Ulster",
+          "venue": "Cardiff Arms Park, Cardiff",
+          "date": "2026-12-05",
+          "time_cet": "16:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "United Rugby Championship",
+          "stage": "united-rugby-championship",
+          "home_team": "Scarlets",
+          "away_team": "Connacht",
+          "venue": "Parc y Scarlets, Llanelli",
+          "date": "2026-12-05",
+          "time_cet": "18:15",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Nottingham Forest",
+          "away_team": "Brighton & Hove Albion",
+          "venue": "The City Ground, Nottingham",
+          "date": "2026-12-05",
           "time_cet": "18:30",
           "status": "not_started"
         },
         {
-          "sport": "Football",
-          "competition": "English Premier League",
-          "stage": "Matchweek 12",
-          "home_team": "Everton",
-          "away_team": "Liverpool",
-          "venue": "Hill Dickinson Stadium, Liverpool",
-          "date": "2026-11-29",
-          "time_cet": "13:00",
+          "sport": "Rugby Union",
+          "competition": "United Rugby Championship",
+          "stage": "united-rugby-championship",
+          "home_team": "Glasgow Warriors",
+          "away_team": "Benetton Treviso",
+          "venue": "Scotstoun Stadium, Glasgow",
+          "date": "2026-12-05",
+          "time_cet": "20:45",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "United Rugby Championship",
+          "stage": "united-rugby-championship",
+          "home_team": "Zebre",
+          "away_team": "Munster",
+          "venue": "Stadio Sergio Lanfranchi, Parma",
+          "date": "2026-12-05",
+          "time_cet": "20:45",
           "status": "not_started"
         },
         {
           "sport": "Football",
           "competition": "English Premier League",
-          "stage": "Matchweek 12",
-          "home_team": "Brighton & Hove Albion",
-          "away_team": "Newcastle United",
-          "venue": "Amex Stadium, Brighton",
-          "date": "2026-11-29",
-          "time_cet": "15:05",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "English Premier League",
-          "stage": "Matchweek 12",
-          "home_team": "Fulham",
-          "away_team": "AFC Bournemouth",
-          "venue": "Craven Cottage, London",
-          "date": "2026-11-29",
-          "time_cet": "15:05",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "English Premier League",
-          "stage": "Matchweek 12",
-          "home_team": "Sunderland",
-          "away_team": "Tottenham Hotspur",
-          "venue": "Stadium of Light, Sunderland",
-          "date": "2026-11-29",
-          "time_cet": "15:05",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "English Premier League",
-          "stage": "Matchweek 12",
-          "home_team": "Crystal Palace",
-          "away_team": "Hull City",
-          "venue": "Selhurst Park, London",
-          "date": "2026-11-29",
-          "time_cet": "15:05",
-          "status": "not_started"
-        },
-        {
-          "sport": "Football",
-          "competition": "English Premier League",
-          "stage": "Matchweek 12",
-          "home_team": "Arsenal",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Brentford",
           "away_team": "Manchester City",
-          "venue": "Emirates Stadium, London",
-          "date": "2026-11-29",
-          "time_cet": "17:30",
-          "status": "not_started"
-        },
-        {
-          "sport": "GAA",
-          "competition": "Leinster Senior Club Football Championship",
-          "stage": "Semi-Final",
-          "home_team": "Wolfe Tones",
-          "away_team": "The Downs",
-          "venue": "Donaghmore-Ashbourne GAA Club",
-          "date": "2026-11-28",
-          "time_cet": "14:30",
-          "status": "not_started"
-        },
-        {
-          "sport": "GAA",
-          "competition": "Leinster Senior Club Football Championship",
-          "stage": "Semi-Final",
-          "home_team": "Cuala",
-          "away_team": "Portarlington",
-          "venue": "Parnell Park, Dublin",
-          "date": "2026-11-28",
-          "time_cet": "14:30",
-          "status": "not_started"
-        },
-        {
-          "sport": "Rugby Union",
-          "competition": "Autumn Nations Championship (Internationals)",
-          "stage": "Finals Weekend - 6th Place Play-off",
-          "home_team": "6th Place North",
-          "away_team": "6th Place South",
-          "venue": "Allianz Stadium, Twickenham",
-          "date": "2026-11-27",
-          "time_cet": "17:40",
-          "status": "not_started"
-        },
-        {
-          "sport": "Rugby Union",
-          "competition": "Autumn Nations Championship (Internationals)",
-          "stage": "Finals Weekend - 3rd Place Play-off",
-          "home_team": "3rd Place North",
-          "away_team": "3rd Place South",
-          "venue": "Allianz Stadium, Twickenham",
-          "date": "2026-11-27",
-          "time_cet": "21:10",
-          "status": "not_started"
-        },
-        {
-          "sport": "Rugby Union",
-          "competition": "Autumn Nations Championship (Internationals)",
-          "stage": "Finals Weekend - 5th Place Play-off",
-          "home_team": "5th Place North",
-          "away_team": "5th Place South",
-          "venue": "Allianz Stadium, Twickenham",
-          "date": "2026-11-28",
-          "time_cet": "14:10",
-          "status": "not_started"
-        },
-        {
-          "sport": "Rugby Union",
-          "competition": "Autumn Nations Championship (Internationals)",
-          "stage": "Finals Weekend - 2nd Place Play-off",
-          "home_team": "2nd Place North",
-          "away_team": "2nd Place South",
-          "venue": "Allianz Stadium, Twickenham",
-          "date": "2026-11-28",
-          "time_cet": "17:40",
-          "status": "not_started"
-        },
-        {
-          "sport": "Rugby Union",
-          "competition": "Autumn Nations Championship (Internationals)",
-          "stage": "Finals Weekend - 4th Place Play-off",
-          "home_team": "4th Place North",
-          "away_team": "4th Place South",
-          "venue": "Allianz Stadium, Twickenham",
-          "date": "2026-11-29",
-          "time_cet": "14:10",
-          "status": "not_started"
-        },
-        {
-          "sport": "Rugby Union",
-          "competition": "Autumn Nations Championship (Internationals)",
-          "stage": "Finals Weekend - Championship Final",
-          "home_team": "1st Place North",
-          "away_team": "1st Place South",
-          "venue": "Allianz Stadium, Twickenham",
-          "date": "2026-11-29",
-          "time_cet": "17:40",
+          "venue": "Gtech Community Stadium, Brentford",
+          "date": "2026-12-05",
+          "time_cet": "21:00",
           "status": "not_started"
         },
         {
           "sport": "Formula One",
-          "competition": "Qatar Grand Prix",
-          "stage": "Qualifying",
-          "venue": "Lusail International Circuit, Qatar",
-          "date": "2026-11-28",
-          "time_cet": "19:00",
-          "status": "not_started"
-        },
-        {
-          "sport": "Formula One",
-          "competition": "Qatar Grand Prix",
+          "competition": "Abu Dhabi Grand Prix",
           "stage": "Race",
-          "venue": "Lusail International Circuit, Qatar",
-          "date": "2026-11-29",
-          "time_cet": "17:00",
+          "venue": "Yas Marina Circuit, UAE",
+          "date": "2026-12-06",
+          "time_cet": "14:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Everton",
+          "away_team": "Fulham",
+          "venue": "Hill Dickinson Stadium, Liverpool",
+          "date": "2026-12-06",
+          "time_cet": "15:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Newcastle United",
+          "away_team": "Sunderland",
+          "venue": "St. James' Park, Newcastle-upon-Tyne",
+          "date": "2026-12-06",
+          "time_cet": "15:00",
+          "status": "not_started"
+        },
+        {
+          "sport": "Football",
+          "competition": "English Premier League",
+          "stage": "2026-27-english-premier-league",
+          "home_team": "Tottenham Hotspur",
+          "away_team": "Arsenal",
+          "venue": "Tottenham Hotspur Stadium, London",
+          "date": "2026-12-06",
+          "time_cet": "17:30",
           "status": "not_started"
         }
       ],
       "inactive_or_filtered_competitions": [
         {
-          "competition": "Scottish Premier League (Celtic vs Rangers)",
-          "reason": "No Old Firm derby scheduled this week (next fixture: 3 January 2027)"
+          "competition": "API-Sports (Football & Rugby Union)",
+          "reason": "API_SPORTS_KEY not set in .env; skipped API-Football & API-Rugby (using ESPN 7-day coverage)."
         },
         {
-          "competition": "Football (World Cup, Euros, Nations League)",
-          "reason": "No tournament or international fixtures scheduled during 23–29 November 2026"
-        },
-        {
-          "competition": "GAA (Inter-County & Provincial Senior Hurling)",
-          "reason": "Inter-county season in off-season; provincial club senior hurling fixtures not scheduled in this window"
-        },
-        {
-          "competition": "Rugby Union (United Rugby Championship, European Rugby Champions Cup, 6 Nations)",
-          "reason": "Break for Autumn Nations Championship Finals Weekend; URC Round 6 resumes 4 December 2026, Champions Cup Round 2 resumes 11 December 2026, 6 Nations starts February 2027"
-        },
-        {
-          "competition": "Golf (Men's PGA Tour, DP World Tour, Ryder Cup)",
-          "reason": "DP World Tour BMW Australian PGA Championship (27–30 Nov) tees off in Brisbane outside the 11:30–23:59 CET window; PGA Tour Farmers Insurance Skins Game (27 Nov) starts at 01:00 CET; no Ryder Cup in 2026"
-        },
-        {
-          "competition": "Darts (PDC World Darts Championship)",
-          "reason": "Tournament begins 11 December 2026 at Alexandra Palace, London"
+          "competition": "GAA (Senior Football & Hurling)",
+          "reason": "No GAA_ICS_URLS or GAA_ECAL_WIDGET_URL configured in .env."
         }
       ]
     };
