@@ -4,12 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nelly Mc's Marbella - Sports Coverage (v01.07)</title>
+  <title>Nelly Mc's Marbella - Sports Coverage (v01.08)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- html2pdf.js bundle (includes jsPDF + html2canvas) for direct .pdf download -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     :root {
       --brand-teal: #3B9CA4;
@@ -851,7 +851,7 @@
   <!-- Interactive Toolbar (Hidden on PDF Export & Print) -->
   <div class="control-bar no-export">
     <div class="control-group">
-      <span class="version-badge" id="toolbarVersionBadge">v01.07</span>
+      <span class="version-badge" id="toolbarVersionBadge">v01.08</span>
       <div class="week-picker-box">
         <label for="toolbarWeekDate" class="week-picker-label">Week:</label>
         <input type="date" id="toolbarWeekDate" class="week-picker-input" value="2026-11-23" title="Pick any date (auto-snaps to Monday of that week)" />
@@ -978,11 +978,11 @@
 
   <!-- Designer Credit (HTML View Only, Excluded from PDF & Print) -->
   <footer class="designer-credit no-export">
-    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.07</span>
+    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.08</span>
   </footer>
 
   <script>
-    const APP_VERSION = 'v01.07';
+    const APP_VERSION = 'v01.08';
     // Week start date (Monday) used for dynamic export filenames: dd_mmm_yyyy
     let WEEK_START_DATE = new Date(2026, 10, 23); // November 23, 2026
 
@@ -2236,6 +2236,18 @@
     }
 
     /**
+     * Escape HTML special characters before injecting text or attributes into DOM templates
+     */
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /**
      * Render the exact poster pages with your Raleway styling + interactive checkboxes & delete controls
      */
     function renderPoster() {
@@ -2292,7 +2304,7 @@
                 alt="Nelly Mc's Marbella"
                 class="brand-logo"
               >
-              <h1 class="week-banner">${getWeekBannerText()}</h1>
+              <h1 class="week-banner">${escapeHtml(getWeekBannerText())}</h1>
               <p class="helper-subtext no-export">Local Madrid Time (CET) &middot; Tick any fixture to include in PDF/Print</p>
             </header>
 
@@ -2315,7 +2327,7 @@
           html += `
             <div class="sport-block ${sportAllUnchecked}">
               <div class="sport-category ${topMarginClass}">
-                <h2>${sportName}</h2>
+                <h2>${escapeHtml(sportName)}</h2>
               </div>
           `;
 
@@ -2326,38 +2338,42 @@
 
             html += `
               <section class="day-group ${dayAllUnchecked}">
-                <h3 class="day-title">${dayTitle}</h3>
+                <h3 class="day-title">${escapeHtml(dayTitle)}</h3>
             `;
 
             dayEvents.forEach(ev => {
+              const safeId = escapeHtml(ev.id);
+              const safeTitle = escapeHtml(ev.title);
+              const safeComp = escapeHtml(ev.competition);
+              const safeTime = escapeHtml(ev.time);
               html += `
-                <div class="match-row ${ev.checked ? '' : 'is-unchecked'}" data-id="${ev.id}">
+                <div class="match-row ${ev.checked ? '' : 'is-unchecked'}" data-id="${safeId}">
                   <div class="row-left">
                     <input
                       type="checkbox"
-                      id="chk-${ev.id}"
+                      id="chk-${safeId}"
                       class="event-checkbox no-export"
                       ${ev.checked ? 'checked' : ''}
-                      onchange="toggleEvent('${ev.id}')"
-                      aria-label="Include ${ev.title}"
+                      onchange="toggleEvent('${safeId}')"
+                      aria-label="Include ${safeTitle}"
                     />
-                    <label for="chk-${ev.id}" class="fixture-info">
+                    <label for="chk-${safeId}" class="fixture-info">
                       <div class="competition-logo">
                         ${getCompetitionLogoHTML(ev.badgeType)}
                       </div>
-                      <span class="teams">${ev.title}</span>
-                      <span class="competition-badge">${ev.competition}</span>
+                      <span class="teams">${safeTitle}</span>
+                      <span class="competition-badge">${safeComp}</span>
                     </label>
                   </div>
 
                   <div class="row-right">
-                    <div class="kickoff-time">${ev.time}</div>
+                    <div class="kickoff-time">${safeTime}</div>
                     <button
                       type="button"
                       class="delete-row-btn no-export"
-                      onclick="deleteSingleEvent('${ev.id}')"
+                      onclick="deleteSingleEvent('${safeId}')"
                       title="Delete fixture"
-                      aria-label="Delete ${ev.title}"
+                      aria-label="Delete ${safeTitle}"
                     >&times;</button>
                   </div>
                 </div>
@@ -2380,23 +2396,25 @@
           const notesAllUnchecked = notesCheckedCount === 0 ? 'all-unchecked' : '';
           html += `<div class="custom-notes-section ${notesAllUnchecked}">`;
           pageNotes.forEach(note => {
+            const safeNoteId = escapeHtml(note.id);
+            const safeNoteText = escapeHtml(note.text);
             html += `
               <div class="custom-note-row ${note.checked ? '' : 'is-unchecked'}">
                 <div class="row-left">
                   <input
                     type="checkbox"
-                    id="note-${note.id}"
+                    id="note-${safeNoteId}"
                     class="event-checkbox no-export"
                     ${note.checked ? 'checked' : ''}
-                    onchange="toggleNote('${note.id}')"
+                    onchange="toggleNote('${safeNoteId}')"
                     aria-label="Include note"
                   />
-                  <label for="note-${note.id}" class="note-text">${note.text}</label>
+                  <label for="note-${safeNoteId}" class="note-text">${safeNoteText}</label>
                 </div>
                 <button
                   type="button"
                   class="delete-row-btn no-export"
-                  onclick="deleteSingleNote('${note.id}')"
+                  onclick="deleteSingleNote('${safeNoteId}')"
                   title="Delete text"
                   aria-label="Delete text"
                 >&times;</button>
