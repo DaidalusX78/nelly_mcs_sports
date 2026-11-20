@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nelly Mc's Marbella - Sports Coverage (v01.05)</title>
+  <title>Nelly Mc's Marbella - Sports Coverage (v01.06)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -822,7 +822,7 @@
   <!-- Interactive Toolbar (Hidden on PDF Export & Print) -->
   <div class="control-bar no-export">
     <div class="control-group">
-      <span class="version-badge" id="toolbarVersionBadge">v01.05</span>
+      <span class="version-badge" id="toolbarVersionBadge">v01.06</span>
       <button type="button" class="btn" onclick="selectAllEvents()">Select All</button>
       <button type="button" class="btn btn-danger" onclick="deleteUncheckedEvents()">
         Delete Unchecked (<span id="uncheckedCount">0</span>)
@@ -942,11 +942,11 @@
 
   <!-- Designer Credit (HTML View Only, Excluded from PDF & Print) -->
   <footer class="designer-credit no-export">
-    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.05</span>
+    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.06</span>
   </footer>
 
   <script>
-    const APP_VERSION = 'v01.05';
+    const APP_VERSION = 'v01.06';
     // Week start date (Monday) used for dynamic export filenames: dd_mmm_yyyy
     const WEEK_START_DATE = new Date(2026, 10, 23); // November 23, 2026
 
@@ -994,9 +994,13 @@
       if (comp.includes('6 nations') || comp.includes('six nations')) return 'six-nations';
       if (comp.includes('champions cup')) return 'rugby-champions-cup';
       if (comp.includes('united rugby championship') || comp.includes('urc')) return 'urc';
-      if (comp.includes('autumn nations')) return 'rugby-intl';
+      if (comp.includes('autumn nations') || comp.includes('nations championship')) return 'rugby-intl';
       if (comp.includes('masters')) return 'golf-masters';
       if (comp.includes('the open') || comp.includes('open championship')) return 'golf-theopen';
+      if (comp.includes('u.s. open') || comp.includes('us open')) return 'golf-usopen';
+      if (comp.includes('pga championship')) return 'pga-championship';
+      if (comp.includes('dp world') || comp.includes('european tour')) return 'dp-world-tour';
+      if (comp.includes('pga tour') || comp.includes('pga')) return 'pga-tour';
       if (comp.includes('grand prix') || comp.includes('formula')) return 'f1';
       if (comp.includes('cheltenham')) return 'cheltenham';
       if (comp.includes('punchestown')) return 'punchestown';
@@ -1944,7 +1948,7 @@
         alt: 'UEFA Europa League'
       },
       'uecl': {
-        localUrl: 'assets/images/uefa_onference_league.png',
+        localUrl: 'assets/images/uefa_conference_league.png',
         url: 'https://lh3.googleusercontent.com/d/1a63WPGzFB4SEh1zz1LFJcZilagk2SgAF',
         alt: 'UEFA Conference League'
       },
@@ -1984,6 +1988,26 @@
         localUrl: 'assets/images/united_rugby_championship.png',
         url: 'https://lh3.googleusercontent.com/d/11uhUSb4kf66yUTiiGN_eOsIZsxHfgYDY',
         alt: 'United Rugby Championship'
+      },
+      'rugby-intl': {
+        localUrl: 'assets/images/World%20Rugby%20Nations%20Championship.webp',
+        alt: 'World Rugby Nations Championship'
+      },
+      'pga-tour': {
+        localUrl: 'assets/images/pga_tour_logo.webp',
+        alt: 'PGA Tour'
+      },
+      'dp-world-tour': {
+        localUrl: 'assets/images/dp_world_tour.webp',
+        alt: 'DP World Tour'
+      },
+      'pga-championship': {
+        localUrl: 'assets/images/pga_championship.png',
+        alt: 'PGA Championship'
+      },
+      'golf-usopen': {
+        localUrl: 'assets/images/us_open_golf_logo.png',
+        alt: 'U.S. Open Golf'
       },
       'golf-masters': {
         localUrl: 'assets/images/golf_masters.png',

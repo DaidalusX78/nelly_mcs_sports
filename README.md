@@ -9,7 +9,7 @@ Generates an editable A4 schedule (`11:30–23:59` `Europe/Madrid` local time, M
 ## Live Links & Versioning
 
 - **GitHub Pages (Live Web App Entry):** Enable GitHub Pages from `main` -> `/ (root)` in your GitHub repo settings to serve `https://daidalusx78.github.io/nelly_mcs_sports/` via [index.html](index.html), which automatically redirects to the latest versioned poster.
-- **Active Poster App:** `nelly_sports_v01.05.html` (`v01.05`)
+- **Active Poster App:** `nelly_sports_v01.06.html` (`v01.06`)
 - **Versioning Scheme:** `nelly_sports_vXX.YY.html` — upon each update or `--bump`, the previous version moves to `Archive/` (git-ignored) and the new version displays inside `<title>`, `#toolbarVersionBadge`, `#footerVersionLabel`, `APP_VERSION`, and `index.html`.
 - **Internal Working Notes:** `Archive/` and `app_dev_work/` (credentials, prompt notes, raw API docs) are excluded via `.gitignore`.
 
@@ -20,7 +20,7 @@ Generates an editable A4 schedule (`11:30–23:59` `Europe/Madrid` local time, M
 ```text
 nelly_mcs_sports/
 ├── index.html                        # GitHub Pages entry redirecting to latest version
-├── nelly_sports_v01.05.html          # Interactive self-contained poster & PDF/CSV builder
+├── nelly_sports_v01.06.html          # Interactive self-contained poster & PDF/CSV builder
 ├── fetch-weekly-sports.js            # Automated weekly fixture fetcher & updater (Node 18+)
 ├── register-weekly-schedule.ps1      # Registers Windows Task Scheduler (Mondays 06:00)
 ├── assets/images/                    # Competition & venue crests loaded locally first
@@ -36,7 +36,7 @@ nelly_mcs_sports/
 ## Quick Start
 
 ### 1. View, Edit & Export in Browser
-Open `nelly_sports_v01.05.html` locally or via GitHub Pages:
+Open `nelly_sports_v01.06.html` locally or via GitHub Pages:
 - **Tick fixtures** to include them on the printed/PDF poster (unselected fixtures stay readable on screen and are hidden when exporting/printing).
 - **Edit inline** or add custom fixtures/notes in the **Add Panel**.
 - **Export Website CSV** downloads `Nelly_Mcs_Website_Sports_dd_mmm_yyyy.csv` formatted with columns `Date,Sport Category,Time,Competition,Match,Logo URL` (`DD/MM/YYYY`) ready to import/paste into the main Nelly Mc's Google Sheet (`js/menu.js` & `js/sports-print.js`).
@@ -64,7 +64,7 @@ Requires **Node.js 18+** (uses built-in `fetch`, zero third-party npm dependenci
    ```bash
    node fetch-weekly-sports.js
    ```
-4. Update fixtures, archive the prior HTML into `Archive/`, sync `index.html`, and bump the version (`v01.05` -> `v01.06`):
+4. Update fixtures, archive the prior HTML into `Archive/`, sync `index.html`, and bump the version (`v01.06` -> `v01.07`):
    ```bash
    node fetch-weekly-sports.js --bump
    ```
