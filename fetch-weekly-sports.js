@@ -935,16 +935,20 @@ function updateHtmlFile({ targetInfo, bump, fromDate, toDate, scheduleData }) {
 
   html = html
     .replace(
-      /const WEEK_START_DATE = new Date\([^)]*\);[^\r\n]*/,
-      `const WEEK_START_DATE = new Date(${y}, ${m - 1}, ${d}); // ${fromDate}`
+      /(?:const|let) WEEK_START_DATE = new Date\([^)]*\);[^\r\n]*/,
+      `let WEEK_START_DATE = new Date(${y}, ${m - 1}, ${d}); // ${fromDate}`
+    )
+    .replace(
+      /(<input type="date" id="toolbarWeekDate"[^>]*value=")[^"]*(")/,
+      `$1${fromDate}$2`
     )
     .replace(
       /(<input type="date" id="newDate" value=")[^"]*(")/,
       `$1${fromDate}$2`
     )
     .replace(
-      /(<h1 class="week-banner">)[^<]*(<\/h1>)/,
-      `$1${bannerTitle}$2`
+      /(<h1 class="week-banner">)([^<$]*)(<\/h1>)/,
+      `$1${bannerTitle}$3`
     )
     .replace(
       /(\* Weekly schedule JSON data for )[^\r\n]*/,
@@ -953,9 +957,15 @@ function updateHtmlFile({ targetInfo, bump, fromDate, toDate, scheduleData }) {
 
   // Replace SCHEDULE_DATA block safely using marker boundaries
   const startMarker = '    const SCHEDULE_DATA = ';
-  const endMarker = '\n    const INITIAL_EVENTS';
   const startIdx = html.indexOf(startMarker);
-  const endIdx = html.indexOf(endMarker, startIdx);
+  const candidateEnds = [
+    '\n    function mapRawEventToPosterItem',
+    '\n    let INITIAL_EVENTS',
+    '\n    const INITIAL_EVENTS'
+  ]
+    .map(m => html.indexOf(m, startIdx))
+    .filter(idx => idx !== -1);
+  const endIdx = candidateEnds.length > 0 ? Math.min(...candidateEnds) : -1;
   if (startIdx === -1 || endIdx === -1) {
     throw new Error('Could not locate SCHEDULE_DATA block inside target HTML file.');
   }

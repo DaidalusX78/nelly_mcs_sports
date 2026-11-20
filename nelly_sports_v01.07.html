@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nelly Mc's Marbella - Sports Coverage (v01.06)</title>
+  <title>Nelly Mc's Marbella - Sports Coverage (v01.07)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -123,6 +123,35 @@
       color: #3B9CA4;
       border: 1px solid rgba(59, 156, 164, 0.35);
       user-select: none;
+    }
+
+    .week-picker-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 6px 3px 10px;
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+    }
+
+    .week-picker-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.03em;
+      user-select: none;
+    }
+
+    .week-picker-input {
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      outline: none;
+      cursor: pointer;
     }
 
     /* Manual Add Event & Text Drawer (Hidden on PDF & Print) */
@@ -822,7 +851,14 @@
   <!-- Interactive Toolbar (Hidden on PDF Export & Print) -->
   <div class="control-bar no-export">
     <div class="control-group">
-      <span class="version-badge" id="toolbarVersionBadge">v01.06</span>
+      <span class="version-badge" id="toolbarVersionBadge">v01.07</span>
+      <div class="week-picker-box">
+        <label for="toolbarWeekDate" class="week-picker-label">Week:</label>
+        <input type="date" id="toolbarWeekDate" class="week-picker-input" value="2026-11-23" title="Pick any date (auto-snaps to Monday of that week)" />
+        <button type="button" id="fetchWeekBtn" class="btn btn-primary" onclick="fetchWeekInBrowser()" title="Fetch live Monday–Sunday fixtures (11:30–23:59 Madrid time)">
+          <span id="fetchWeekLabel">Fetch Week</span>
+        </button>
+      </div>
       <button type="button" class="btn" onclick="selectAllEvents()">Select All</button>
       <button type="button" class="btn btn-danger" onclick="deleteUncheckedEvents()">
         Delete Unchecked (<span id="uncheckedCount">0</span>)
@@ -942,13 +978,20 @@
 
   <!-- Designer Credit (HTML View Only, Excluded from PDF & Print) -->
   <footer class="designer-credit no-export">
-    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.06</span>
+    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.07</span>
   </footer>
 
   <script>
-    const APP_VERSION = 'v01.06';
+    const APP_VERSION = 'v01.07';
     // Week start date (Monday) used for dynamic export filenames: dd_mmm_yyyy
-    const WEEK_START_DATE = new Date(2026, 10, 23); // November 23, 2026
+    let WEEK_START_DATE = new Date(2026, 10, 23); // November 23, 2026
+
+    function getWeekBannerText(dateObj = WEEK_START_DATE) {
+      const d = dateObj.getDate();
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const suffix = (d >= 11 && d <= 13) ? 'th' : (d % 10 === 1 ? 'st' : (d % 10 === 2 ? 'nd' : (d % 10 === 3 ? 'rd' : 'th')));
+      return `Sports coverage - Week Starting ${d}${suffix} ${months[dateObj.getMonth()]}`;
+    }
 
     function getFormattedExportBaseName(dateObj = WEEK_START_DATE) {
       const dd = String(dateObj.getDate()).padStart(2, '0');
@@ -1894,36 +1937,58 @@
       ]
     };
 
-    const INITIAL_EVENTS = SCHEDULE_DATA.events.map((ev, index) => ({
-      id: `ev-${index + 1}`,
-      page: ev.sport === 'Football' ? 1 : 2,
-      sport: ev.sport,
-      competition:
-        ev.sport === 'Rugby Union' || ev.sport === 'GAA'
-          ? `${ev.competition} — ${ev.stage}`
-          : ev.competition,
-      badgeType: getBadgeTypeForSport(ev.sport, ev.competition),
-      dateSort: ev.date,
-      dateDisplay: formatPosterDate(ev.date),
-      time: ev.time_cet,
-      title:
-        ev.home_team && ev.away_team
-          ? `${ev.home_team} vs ${ev.away_team}`
-          : `${ev.competition} — ${ev.stage}`,
-      venue: ev.venue,
-      stage: ev.stage,
-      status: ev.status,
-      checked: false
-    }));
+    function mapRawEventToPosterItem(ev, index) {
+      return {
+        id: `ev-${index + 1}`,
+        page: ev.sport === 'Football' ? 1 : 2,
+        sport: ev.sport,
+        competition:
+          ev.sport === 'Rugby Union' || ev.sport === 'GAA'
+            ? `${ev.competition} — ${ev.stage}`
+            : ev.competition,
+        badgeType: getBadgeTypeForSport(ev.sport, ev.competition),
+        dateSort: ev.date,
+        dateDisplay: formatPosterDate(ev.date),
+        time: ev.time_cet,
+        title:
+          ev.home_team && ev.away_team
+            ? `${ev.home_team} vs ${ev.away_team}`
+            : `${ev.competition} — ${ev.stage}`,
+        venue: ev.venue,
+        stage: ev.stage,
+        status: ev.status,
+        checked: false
+      };
+    }
+
+    let INITIAL_EVENTS = SCHEDULE_DATA.events.map(mapRawEventToPosterItem);
 
     let events = JSON.parse(JSON.stringify(INITIAL_EVENTS));
     let customNotes = [];
+
+    function toLocalISOString(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function applyWeekStartISO(mondayISO) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(mondayISO || '')) return;
+      const [y, m, d] = mondayISO.split('-').map(Number);
+      WEEK_START_DATE = new Date(y, m - 1, d);
+      const pickerEl = document.getElementById('toolbarWeekDate');
+      const addDateEl = document.getElementById('newDate');
+      if (pickerEl) pickerEl.value = mondayISO;
+      if (addDateEl) addDateEl.value = mondayISO;
+    }
 
     // Restore embedded state if opened from an exported .html file
     const savedStateEl = document.getElementById('savedScheduleState');
     if (savedStateEl && savedStateEl.textContent.trim()) {
       try {
         const parsed = JSON.parse(savedStateEl.textContent);
+        if (parsed.weekStartISO) applyWeekStartISO(parsed.weekStartISO);
         if (Array.isArray(parsed.events)) events = parsed.events;
         if (Array.isArray(parsed.customNotes)) customNotes = parsed.customNotes;
       } catch (e) {
@@ -2227,7 +2292,7 @@
                 alt="Nelly Mc's Marbella"
                 class="brand-logo"
               >
-              <h1 class="week-banner">Sports coverage - Week Starting 23rd November</h1>
+              <h1 class="week-banner">${getWeekBannerText()}</h1>
               <p class="helper-subtext no-export">Local Madrid Time (CET) &middot; Tick any fixture to include in PDF/Print</p>
             </header>
 
@@ -2630,7 +2695,11 @@
         stateTag.type = 'application/json';
         document.body.appendChild(stateTag);
       }
-      stateTag.textContent = JSON.stringify({ events, customNotes });
+      stateTag.textContent = JSON.stringify({
+        weekStartISO: toLocalISOString(WEEK_START_DATE),
+        events,
+        customNotes
+      });
 
       const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
       const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
@@ -2686,6 +2755,233 @@
       showToast(`Exported ${exportFileName} (${sourceEvents.length} rows) for Main Website CMS!`, 'success');
     }
 
+    function addDaysISO(isoDate, days) {
+      const [y, m, d] = isoDate.split('-').map(Number);
+      return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+    }
+
+    function snapToMondayISO(isoDate) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate || '')) return '';
+      const [y, m, d] = isoDate.split('-').map(Number);
+      const day = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0=Sun, 1=Mon
+      const offset = day === 0 ? -6 : 1 - day;
+      return addDaysISO(isoDate, offset);
+    }
+
+    function toMadridPartsBrowser(dateInput) {
+      const dt = dateInput instanceof Date ? dateInput : new Date(dateInput);
+      if (Number.isNaN(dt.getTime())) return null;
+      const parts = {};
+      new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Madrid',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).formatToParts(dt).forEach(p => { parts[p.type] = p.value; });
+      const hh = parts.hour === '24' ? '00' : parts.hour;
+      return { date: `${parts.year}-${parts.month}-${parts.day}`, time_cet: `${hh}:${parts.minute}` };
+    }
+
+    function inMadridWindow(dateStr, timeStr, fromDate, toDate) {
+      return Boolean(dateStr && timeStr && dateStr >= fromDate && dateStr <= toDate && timeStr >= '11:30' && timeStr <= '23:59');
+    }
+
+    function isOldFirmBrowser(home = '', away = '') {
+      const h = home.toLowerCase();
+      const a = away.toLowerCase();
+      return (h.includes('celtic') && a.includes('rangers')) || (h.includes('rangers') && a.includes('celtic'));
+    }
+
+    async function runWithPool(items, limit, fn) {
+      const out = new Array(items.length);
+      let idx = 0;
+      const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+        while (idx < items.length) {
+          const i = idx++;
+          out[i] = await fn(items[i], i);
+        }
+      });
+      await Promise.all(workers);
+      return out;
+    }
+
+    /**
+     * Fetch live Monday–Sunday fixtures directly in the browser for any selected week
+     * via CORS-enabled public feeds (ESPN 7-day scoreboards + Jolpica F1).
+     */
+    async function fetchWeekInBrowser() {
+      const pickerEl = document.getElementById('toolbarWeekDate');
+      const btn = document.getElementById('fetchWeekBtn');
+      const label = document.getElementById('fetchWeekLabel');
+      const rawDate = pickerEl?.value || toLocalISOString(WEEK_START_DATE);
+      const fromDate = snapToMondayISO(rawDate);
+      if (!fromDate) {
+        showToast('Please select a valid start date.', 'error');
+        return;
+      }
+      const toDate = addDaysISO(fromDate, 6);
+      applyWeekStartISO(fromDate);
+
+      btn.disabled = true;
+      label.textContent = 'Fetching...';
+      showToast(`Fetching live fixtures for ${fromDate} to ${toDate}...`, 'info');
+
+      try {
+        const espnTeamFeeds = [
+          { path: 'soccer/eng.1', sport: 'Football', competition: 'English Premier League' },
+          { path: 'soccer/uefa.champions', sport: 'Football', competition: 'UEFA Champions League' },
+          { path: 'soccer/uefa.europa', sport: 'Football', competition: 'UEFA Europa League' },
+          { path: 'soccer/uefa.europa.conf', sport: 'Football', competition: 'UEFA Conference League' },
+          { path: 'soccer/sco.1', sport: 'Football', competition: 'Scottish Premiership', oldFirmOnly: true },
+          { path: 'soccer/uefa.nations', sport: 'Football', competition: 'UEFA Nations League' },
+          { path: 'soccer/fifa.world', sport: 'Football', competition: 'FIFA World Cup' },
+          { path: 'soccer/uefa.euro', sport: 'Football', competition: 'UEFA European Championship' },
+          { path: 'rugby/289234', sport: 'Rugby Union', competition: 'Rugby Union Internationals' },
+          { path: 'rugby/180659', sport: 'Rugby Union', competition: 'Six Nations' },
+          { path: 'rugby/270557', sport: 'Rugby Union', competition: 'United Rugby Championship' },
+          { path: 'rugby/271937', sport: 'Rugby Union', competition: 'European Rugby Champions Cup' },
+          { path: 'rugby/164205', sport: 'Rugby Union', competition: 'Rugby World Cup' }
+        ];
+
+        const dayQueries = [];
+        for (let i = 0; i < 7; i++) {
+          const compact = addDaysISO(fromDate, i).replace(/-/g, '');
+          for (const f of espnTeamFeeds) {
+            dayQueries.push({ ...f, compact });
+          }
+        }
+
+        const collected = [];
+        let feedWarnings = 0;
+
+        const teamPromise = runWithPool(dayQueries, 12, async q => {
+          try {
+            const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${q.path}/scoreboard?dates=${q.compact}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            for (const ev of data.events || []) {
+              const madrid = toMadridPartsBrowser(ev.date);
+              if (!madrid || !inMadridWindow(madrid.date, madrid.time_cet, fromDate, toDate)) continue;
+              const comp = ev.competitions?.[0] || {};
+              const comps = comp.competitors || [];
+              const home = comps.find(c => c.homeAway === 'home')?.team?.displayName || '';
+              const away = comps.find(c => c.homeAway === 'away')?.team?.displayName || '';
+              if (!home || !away) continue;
+              if (q.oldFirmOnly && !isOldFirmBrowser(home, away)) continue;
+              const v = comp.venue || {};
+              collected.push({
+                sport: q.sport,
+                competition: q.competition,
+                stage: comp.notes?.[0]?.headline || ev.season?.slug || 'Fixture',
+                home_team: home,
+                away_team: away,
+                venue: [v.fullName, v.address?.city].filter(Boolean).join(', ') || 'TBC',
+                date: madrid.date,
+                time_cet: madrid.time_cet,
+                status: comp.status?.type?.completed ? 'finished' : 'not_started'
+              });
+            }
+          } catch (_) { feedWarnings++; }
+        });
+
+        const golfRange = `${fromDate.replace(/-/g, '')}-${toDate.replace(/-/g, '')}`;
+        const golfPromise = Promise.all([
+          { slug: 'pga', label: 'PGA Tour' },
+          { slug: 'eur', label: 'DP World Tour' }
+        ].map(async t => {
+          try {
+            const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/golf/${t.slug}/scoreboard?dates=${golfRange}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            for (const ev of data.events || []) {
+              const comp = ev.competitions?.[0] || {};
+              const startM = toMadridPartsBrowser(ev.date || comp.date);
+              const endM = ev.endDate ? toMadridPartsBrowser(ev.endDate) : startM;
+              if (!startM) continue;
+              if (!(startM.date <= toDate && (endM?.date || startM.date) >= fromDate)) continue;
+              if (!inMadridWindow(startM.date, startM.time_cet, fromDate, toDate)) continue;
+              const v = comp.venue || ev.venue || {};
+              collected.push({
+                sport: 'Golf',
+                competition: `${t.label} — ${ev.name || ev.shortName || 'Tournament'}`,
+                stage: comp.status?.type?.shortDetail || 'Tournament Play',
+                venue: [v.fullName, v.address?.city, v.address?.country].filter(Boolean).join(', ') || 'TBC',
+                date: startM.date,
+                time_cet: startM.time_cet,
+                status: 'not_started'
+              });
+            }
+          } catch (_) { feedWarnings++; }
+        }));
+
+        const startYr = Number(fromDate.slice(0, 4));
+        const endYr = Number(toDate.slice(0, 4));
+        const f1Years = startYr === endYr ? [startYr] : [startYr, endYr];
+        const f1Promise = Promise.all(f1Years.map(async yr => {
+          try {
+            const res = await fetch(`https://api.jolpi.ca/ergast/f1/${yr}.json`);
+            if (!res.ok) return;
+            const data = await res.json();
+            for (const race of data?.MRData?.RaceTable?.Races || []) {
+              const loc = race.Circuit?.Location || {};
+              const venue = [race.Circuit?.circuitName, loc.country || loc.locality].filter(Boolean).join(', ') || 'TBC';
+              const sessions = [];
+              if (race.Sprint?.date && race.Sprint?.time) sessions.push({ stage: 'Sprint', date: race.Sprint.date, time: race.Sprint.time });
+              if (race.Qualifying?.date && race.Qualifying?.time) sessions.push({ stage: 'Qualifying', date: race.Qualifying.date, time: race.Qualifying.time });
+              if (race.date && race.time) sessions.push({ stage: 'Race', date: race.date, time: race.time });
+              for (const s of sessions) {
+                const utc = s.time.endsWith('Z') ? `${s.date}T${s.time}` : `${s.date}T${s.time}Z`;
+                const madrid = toMadridPartsBrowser(utc);
+                if (!madrid || !inMadridWindow(madrid.date, madrid.time_cet, fromDate, toDate)) continue;
+                collected.push({
+                  sport: 'Formula One',
+                  competition: race.raceName || 'Formula 1 Grand Prix',
+                  stage: s.stage,
+                  venue,
+                  date: madrid.date,
+                  time_cet: madrid.time_cet,
+                  status: 'not_started'
+                });
+              }
+            }
+          } catch (_) { feedWarnings++; }
+        }));
+
+        await Promise.all([teamPromise, golfPromise, f1Promise]);
+
+        const seen = new Set();
+        const deduped = [];
+        for (const ev of collected) {
+          const norm = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          const key = [ev.sport, ev.competition, ev.home_team ? norm(ev.home_team) : norm(ev.stage), norm(ev.away_team), ev.date, ev.time_cet].join('|');
+          if (seen.has(key)) continue;
+          seen.add(key);
+          deduped.push(ev);
+        }
+        deduped.sort((a, b) => a.date.localeCompare(b.date) || a.time_cet.localeCompare(b.time_cet) || a.sport.localeCompare(b.sport));
+
+        INITIAL_EVENTS = deduped.map(mapRawEventToPosterItem);
+        events = JSON.parse(JSON.stringify(INITIAL_EVENTS));
+        customNotes = [];
+        renderPoster();
+
+        const warnNote = feedWarnings > 0 ? ` (${feedWarnings} request warnings)` : '';
+        showToast(
+          `Loaded ${events.length} fixture${events.length === 1 ? '' : 's'} for week starting ${fromDate}${warnNote}. Tick fixtures to select!`,
+          events.length > 0 ? 'success' : 'info'
+        );
+      } catch (err) {
+        console.error('In-browser week fetch error:', err);
+        showToast(`Failed to fetch week: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        label.textContent = 'Fetch Week';
+      }
+    }
+
     /**
      * Native Browser Print
      */
@@ -2710,7 +3006,17 @@
       }
     });
 
-    document.addEventListener('DOMContentLoaded', renderPoster);
+    document.addEventListener('DOMContentLoaded', () => {
+      const pickerEl = document.getElementById('toolbarWeekDate');
+      if (pickerEl) {
+        pickerEl.value = toLocalISOString(WEEK_START_DATE);
+        pickerEl.addEventListener('change', () => {
+          const snapped = snapToMondayISO(pickerEl.value);
+          if (snapped) applyWeekStartISO(snapped);
+        });
+      }
+      renderPoster();
+    });
   </script>
 </body>
 
