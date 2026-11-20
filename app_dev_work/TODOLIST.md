@@ -5,7 +5,6 @@ link: https://daidalusx78.github.io/nelly_mcs_sports
 **todolist.md
 - [ ] 
 
-
 powershell
 git -C "sporting events" push -u origin main
 

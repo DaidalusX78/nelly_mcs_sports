@@ -934,7 +934,7 @@ function updateHtmlFile({ targetInfo, bump, fromDate, toDate, scheduleData }) {
         `<title>Nelly Mc's Marbella - Sports Coverage (${activeVersionTag})</title>`
       )
       .replace(
-        /(id="toolbarVersionBadge">)v\d+\.\d+(<\/span>)/,
+        /(id="(?:toolbarVersionBadge|helpModalVersionBadge)">)v\d+\.\d+(<\/span>)/g,
         `$1${activeVersionTag}$2`
       )
       .replace(

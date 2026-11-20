@@ -30,6 +30,7 @@
 
 5. **How-To Guide Modal & Top-Right Header Icon**:
    - Added circular SVG question mark icon (`#helpGuideBtn`) in the top-right corner of the controls bar.
+   - Moved the `version-badge` (`#helpModalVersionBadge`) into the How-To Guide modal title header for a cleaner toolbar.
    - Designed a responsive, accessible How-To Guide modal (`#helpModal`) explaining:
      - Week selection and live fixture fetching
      - Selecting, filtering, and bulk deleting fixtures
@@ -44,11 +45,31 @@
    - Wired keyboard shortcut: <kbd>Ctrl+Z</kbd> / <kbd>Cmd+Z</kbd>.
    - Restores state across event checkboxes, single row deletions, bulk deletions, manual additions, and "Reset All".
 
-7. **Scroll-Locked Sticky Controls Header**:
+7. **Scroll-Locked Sticky Controls Header with Unified White Background**:
    - Wrapped `.control-bar`, `#addPanel` drawer, and `#statusToast` in `.sticky-header-container`.
-   - Sticky locked to `top: 0` (`z-index: 1000`) with matching cream background.
-   - All tool controls, feedback banners, and active toasts remain pinned and visible while scrolling through long schedules.
+   - Applied a clean white card background with subtle box-shadow and border-radius (`background: var(--white); box-shadow: 0 4px 20px rgba(0,0,0,0.08)`).
+   - Sticky locked to `top: 0` (`z-index: 1000`) so controls, drawers, and feedback toasts remain visible while scrolling.
 
-8. **Automation & Version Management**:
-   - Fixed version sorting in `fetch-weekly-sports.js` to target highest version (`v01.10`).
-   - Updated `index.html` to serve `nelly_sports_v01.10.html` by default.
+8. **Horizontal Inline Fixture Alignment**:
+   - Aligned `.competition-logo`, `.teams`, and `.kickoff-time` on the exact same horizontal baseline and centerline (height 28px).
+   - Moved `.competition-logo` strictly to grid row 1 (no vertical stretch/offset), keeping the competition badge directly beneath team names in column 2, row 2.
+   - Vertically centered `.event-checkbox` (`margin-top: 4px`) to match the 28px inline row height.
+   - Adjusted medium, compact, and ultra auto-formatting profiles accordingly.
+
+9. **Match Row Hover Cleanup**:
+   - Removed the transition effect and horizontal translation jump (`transform: translateX(4px)`) on `.match-row:hover` for an uninterrupted, stable UI experience.
+
+10. **Unified "+ Add" Dropdown Menu**:
+    - Replaced the standalone `ADD EVENT` and `ADD ANNOUNCEMENT` buttons with a sleek `<select id="addDropdownSelect">` titled `+ Add`.
+    - Dropdown options: `Add Event` and `Add Announcement`.
+    - Added dedicated close buttons (`&times;`) inside each drawer section for quick dismissal.
+
+11. **Button Renaming & Copy Refinements**:
+    - Renamed the bulk delete button to `Clear Unchecked (<span id="uncheckedCount">0</span>)`.
+    - Renamed `#fetchWeekBtn` to `Select Week` (with `Selecting...` loading state).
+    - Updated How-To Guide modal instructions to reflect "Select Week" and "Clear Unchecked".
+
+12. **Automation & Version Management**:
+    - Fixed version sorting in `fetch-weekly-sports.js` to target highest version (`v01.10`).
+    - Updated regex in `fetch-weekly-sports.js` to automatically bump both `toolbarVersionBadge` and `helpModalVersionBadge`.
+    - Updated `index.html` to serve `nelly_sports_v01.10.html` by default.
