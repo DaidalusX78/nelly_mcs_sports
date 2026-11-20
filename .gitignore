@@ -3,7 +3,6 @@
 node_modules/
 Archive/
 archive/
-app_dev_work/
 *.pdf
 *.log
 desktop.ini

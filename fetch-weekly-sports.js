@@ -38,8 +38,22 @@ const RUGBY_INCLUDE_KEYWORDS = [
   'autumn nations',
   'international',
   'world cup',
-  'test match'
+  'test match',
+  'british & irish lions',
+  'british and irish lions',
+  'lions'
 ];
+
+function getSportRank(sportName = '') {
+  const s = String(sportName).toLowerCase();
+  if (s.includes('football') || s.includes('soccer')) return 1;
+  if (s.includes('gaa') || s.includes('hurling') || s.includes('gaelic')) return 2;
+  if (s.includes('rugby')) return 3;
+  if (s.includes('golf')) return 4;
+  if (s.includes('darts')) return 5;
+  if (s.includes('formula') || s === 'f1') return 6;
+  return 999;
+}
 
 // ---------------------------------------------------------------------------
 // CLI & Environment Helpers
@@ -352,6 +366,7 @@ function mapRugbyLeagueName(leagueName = '') {
   if (low.includes('united rugby championship') || low === 'urc') return 'United Rugby Championship';
   if (low.includes('champions cup')) return 'European Rugby Champions Cup';
   if (low.includes('autumn nations')) return 'Autumn Nations Series';
+  if (low.includes('lions')) return 'British & Irish Lions';
   if (low.includes('international') || low.includes('world cup') || low.includes('test')) {
     return 'Rugby Union Internationals';
   }
@@ -838,6 +853,9 @@ function deduplicateAndSort(events) {
 
   unique.sort((a, b) => {
     if (a.date !== b.date) return a.date.localeCompare(b.date);
+    const rankA = getSportRank(a.sport);
+    const rankB = getSportRank(b.sport);
+    if (rankA !== rankB) return rankA - rankB;
     if (a.time_cet !== b.time_cet) return a.time_cet.localeCompare(b.time_cet);
     return a.sport.localeCompare(b.sport);
   });
@@ -864,7 +882,7 @@ function findLatestHtmlFile() {
   if (candidates.length === 0) {
     throw new Error(`No nelly_sports_vXX.YY.html file found in ${ROOT_DIR}`);
   }
-  return candidates[candidates.length - 1];
+  return candidates[0];
 }
 
 function incrementVersionTag(major, minor) {

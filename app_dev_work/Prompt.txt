@@ -1,0 +1,29 @@
+Please generate this weeks (from Monday) sports list which includes the following sporting events; Football (Men's English Premier League, World Cup, Euros, Nations League, Europa League, Champions League, Conference League, Scottish Premier League (only display fixtures between Celtic and Rangers)), GAA (Senior Football and Hurling), Rugby Union (Internationals, United Rugby Championships, European Rugby Champions Cup, 6 Nations), Formula One (Qualifying, Race), Golf (Men's PGA, DP World Tour and Ryder Cup), Darts (PDC World Darts Championship)
+
+
+
+
+
+
+
+Please then sort it by sport, date, time (give as local Madrid time only and only display events which are between 11:30 and 23:59 please.) If there is no sporting events during the week or they fall outside stated hours, please do not show.
+
+
+
+Please populate the attached html/css file with the data and provide a preview window so I can edit the events.
+
+
+
+Thanks 
+
+
+
+
+
+
+Football (Men's English Premier League, World Cup, Euros, Nations League, Europa League, Champions League, Conference League, Scottish Premier League (only display fixtures between Celtic and Rangers)), 
+GAA (Senior Football and Hurling), 
+Rugby Union (Internationals, United Rugby Championships, European Rugby Champions Cup, 6 Nations, British & Irish Lions), 
+Golf (Men's PGA, DP World Tour and Ryder Cup), 
+Darts (PDC World Darts Championship)
+Formula One (Qualifying, Race), 
