@@ -745,6 +745,26 @@
       align-items: center;
     }
 
+    .edit-row-btn {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 4px 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .edit-row-btn:hover {
+      color: var(--brand-teal-dark);
+      background: var(--brand-teal-light);
+    }
+
     .delete-row-btn {
       background: transparent;
       border: none;
@@ -1144,7 +1164,7 @@
       </div>
 
       <div class="control-group">
-        <button type="button" class="btn" onclick="exportToWebsiteCSV()" title="Export CSV formatted for Nelly Mc's Main Website Google Sheet CMS">
+        <button type="button" id="updateWebsiteBtn" class="btn" onclick="exportToWebsiteCSV()" title="Direct website push coming soon" disabled style="opacity: 0.45; cursor: not-allowed;">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
@@ -1217,10 +1237,15 @@
           </div>
           <div class="form-field">
             <label for="newEventPage">Poster Page</label>
-            <select id="newEventPage">
+            <select id="newEventPage" onchange="toggleCustomPageInput('newEventPage', 'newEventCustomPageWrap')">
               <option value="1">Page 1</option>
               <option value="2">Page 2</option>
+              <option value="custom">Custom...</option>
             </select>
+          </div>
+          <div class="form-field" id="newEventCustomPageWrap" style="display: none;">
+            <label for="newEventCustomPage">Custom Page #</label>
+            <input type="number" id="newEventCustomPage" min="1" max="20" value="3" />
           </div>
           <div class="form-field">
             <button type="button" class="btn btn-primary" style="justify-content: center;" onclick="addManualEvent()">Add Event</button>
@@ -1240,10 +1265,15 @@
           </div>
           <div class="form-field">
             <label for="newNotePage">Poster Page</label>
-            <select id="newNotePage">
+            <select id="newNotePage" onchange="toggleCustomPageInput('newNotePage', 'newNoteCustomPageWrap')">
               <option value="1">Page 1</option>
               <option value="2">Page 2</option>
+              <option value="custom">Custom...</option>
             </select>
+          </div>
+          <div class="form-field" id="newNoteCustomPageWrap" style="display: none;">
+            <label for="newNoteCustomPage">Custom Page #</label>
+            <input type="number" id="newNoteCustomPage" min="1" max="20" value="3" />
           </div>
           <div class="form-field">
             <button type="button" class="btn btn-primary" style="justify-content: center;" onclick="addCustomText()">Add Text</button>
@@ -1307,6 +1337,51 @@
           <div>
             <strong>Update Website &amp; Print / Export PDF</strong>
             <p>Click <em>Update Website</em> to download the formatted CMS CSV for the live website schedule. Click <em>Export to .pdf</em> or <em>Print</em> to generate high-resolution print-ready posters (smart auto-formatting balances pages automatically).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Event Modal (Hidden in PDF & Print) -->
+  <div id="editEventModal" class="help-modal-backdrop no-export" onclick="if(event.target===this)closeEditEventModal()">
+    <div class="help-modal-card" style="max-width: 520px;">
+      <div class="help-modal-header">
+        <div class="help-modal-title-wrap">
+          <h3 class="help-modal-title">Edit Fixture Details</h3>
+        </div>
+        <button type="button" class="help-modal-close" onclick="closeEditEventModal()" aria-label="Close edit dialog">&times;</button>
+      </div>
+      <div class="help-modal-body" style="gap: 12px;">
+        <input type="hidden" id="editEventId" />
+        <div class="add-form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-field" style="grid-column: span 2;">
+            <label for="editEventTitle">Match / Event Title</label>
+            <input type="text" id="editEventTitle" />
+          </div>
+          <div class="form-field">
+            <label for="editEventSport">Sport Category</label>
+            <input type="text" id="editEventSport" />
+          </div>
+          <div class="form-field">
+            <label for="editEventCompetition">Competition / Subtitle</label>
+            <input type="text" id="editEventCompetition" />
+          </div>
+          <div class="form-field">
+            <label for="editEventDate">Date</label>
+            <input type="date" id="editEventDate" />
+          </div>
+          <div class="form-field">
+            <label for="editEventTime">Madrid Time (11:30–23:59)</label>
+            <input type="time" id="editEventTime" min="11:30" max="23:59" />
+          </div>
+          <div class="form-field">
+            <label for="editEventPage">Poster Page</label>
+            <input type="number" id="editEventPage" min="1" max="20" value="1" />
+          </div>
+          <div class="form-field" style="justify-content: flex-end; flex-direction: row; gap: 8px; align-items: flex-end;">
+            <button type="button" class="btn" onclick="closeEditEventModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="saveEditedEvent()">Save Changes</button>
           </div>
         </div>
       </div>
@@ -2716,6 +2791,17 @@
                     <div class="kickoff-time">${safeTime}</div>
                     <button
                       type="button"
+                      class="edit-row-btn no-export"
+                      onclick="openEditEventModal('${safeId}')"
+                      title="Edit fixture"
+                      aria-label="Edit ${safeTitle}"
+                    >
+                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
                       class="delete-row-btn no-export"
                       onclick="deleteSingleEvent('${safeId}')"
                       title="Delete fixture"
@@ -2896,8 +2982,85 @@
       }
       if (e.key === 'Escape') {
         closeHelpModal();
+        closeEditEventModal();
       }
     });
+
+    function toggleCustomPageInput(selectId, wrapId) {
+      const sel = document.getElementById(selectId);
+      const wrap = document.getElementById(wrapId);
+      if (!sel || !wrap) return;
+      wrap.style.display = sel.value === 'custom' ? 'flex' : 'none';
+    }
+
+    function resolveSelectedPage(selectId, customInputId) {
+      const sel = document.getElementById(selectId);
+      if (!sel) return 1;
+      if (sel.value === 'custom') {
+        const customInput = document.getElementById(customInputId);
+        const val = parseInt(customInput ? customInput.value : '3', 10);
+        return Number.isFinite(val) && val >= 1 ? val : 1;
+      }
+      return Number(sel.value) || 1;
+    }
+
+    function openEditEventModal(id) {
+      const ev = events.find(item => item.id === id);
+      if (!ev) return;
+      document.getElementById('editEventId').value = ev.id;
+      document.getElementById('editEventTitle').value = ev.title || '';
+      document.getElementById('editEventCompetition').value = ev.competition || '';
+      document.getElementById('editEventSport').value = ev.sport || 'Football';
+      document.getElementById('editEventDate').value = ev.dateSort || '';
+      document.getElementById('editEventTime').value = ev.time || '20:00';
+      document.getElementById('editEventPage').value = ev.page || 1;
+      document.getElementById('editEventModal').classList.add('open');
+    }
+
+    function closeEditEventModal() {
+      const modal = document.getElementById('editEventModal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    function saveEditedEvent() {
+      const id = document.getElementById('editEventId').value;
+      const ev = events.find(item => item.id === id);
+      if (!ev) return;
+
+      const title = document.getElementById('editEventTitle').value.trim();
+      const competition = document.getElementById('editEventCompetition').value.trim();
+      const sport = document.getElementById('editEventSport').value.trim() || ev.sport;
+      const dateSort = document.getElementById('editEventDate').value;
+      const time = document.getElementById('editEventTime').value;
+      const page = Math.max(1, parseInt(document.getElementById('editEventPage').value, 10) || 1);
+
+      if (!title) {
+        showToast('Please enter a match or event title.', 'error');
+        return;
+      }
+      if (!dateSort || !time) {
+        showToast('Please provide both a date and time.', 'error');
+        return;
+      }
+      if (time < '11:30' || time > '23:59') {
+        showToast('Time must be between 11:30 and 23:59 Madrid time.', 'error');
+        return;
+      }
+
+      pushUndoState();
+      ev.title = title;
+      ev.competition = competition || sport;
+      ev.sport = sport;
+      ev.badgeType = getBadgeTypeForSport(ev.sport, ev.competition);
+      ev.dateSort = dateSort;
+      ev.dateDisplay = formatPosterDate(dateSort);
+      ev.time = time;
+      ev.page = page;
+
+      closeEditEventModal();
+      renderPoster();
+      showToast(`Updated "${ev.title}".`, 'success');
+    }
 
     function addManualEvent() {
       let sport = document.getElementById('newSport').value.trim();
@@ -2914,7 +3077,7 @@
       const dateSort = document.getElementById('newDate').value;
       const time = document.getElementById('newTime').value;
       const title = document.getElementById('newTitle').value.trim();
-      const page = Number(document.getElementById('newEventPage').value) || 1;
+      const page = resolveSelectedPage('newEventPage', 'newEventCustomPage');
 
       if (!title) {
         showToast('Please enter a match or event title.', 'error');
@@ -2953,7 +3116,7 @@
 
     function addCustomText() {
       const text = document.getElementById('newNoteText').value.trim();
-      const page = Number(document.getElementById('newNotePage').value) || 1;
+      const page = resolveSelectedPage('newNotePage', 'newNoteCustomPage');
 
       if (!text) {
         showToast('Please enter some text before adding.', 'error');
@@ -3324,6 +3487,8 @@
       try {
         const espnTeamFeeds = [
           { path: 'soccer/eng.1', sport: 'Football', competition: 'English Premier League' },
+          { path: 'soccer/eng.fa', sport: 'Football', competition: 'FA Cup' },
+          { path: 'soccer/eng.league_cup', sport: 'Football', competition: 'EFL Carabao Cup' },
           { path: 'soccer/uefa.champions', sport: 'Football', competition: 'UEFA Champions League' },
           { path: 'soccer/uefa.europa', sport: 'Football', competition: 'UEFA Europa League' },
           { path: 'soccer/uefa.europa.conf', sport: 'Football', competition: 'UEFA Conference League' },
