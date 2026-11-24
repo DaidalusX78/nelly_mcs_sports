@@ -1100,12 +1100,14 @@
         box-shadow: none !important;
         border-radius: 0 !important;
         max-width: 100% !important;
-        min-height: 100vh !important;
+        min-height: auto !important;
         page-break-after: always;
+        break-after: page;
       }
 
       .poster-page:last-child {
         page-break-after: auto;
+        break-after: auto;
       }
     }
 
@@ -1510,7 +1512,7 @@
       "events": [
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Brentford",
           "away_team": "Everton",
@@ -2126,7 +2128,7 @@
         },
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Nottingham Forest",
           "away_team": "Chelsea",
@@ -2159,7 +2161,7 @@
         },
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Leeds United",
           "away_team": "Coventry City",
@@ -2170,7 +2172,7 @@
         },
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Manchester United",
           "away_team": "Brentford",
@@ -2181,7 +2183,7 @@
         },
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Ipswich Town",
           "away_team": "Aston Villa",
@@ -2223,7 +2225,7 @@
         },
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Everton",
           "away_team": "Liverpool",
@@ -2234,7 +2236,7 @@
         },
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Brighton & Hove Albion",
           "away_team": "Newcastle United",
@@ -2245,7 +2247,7 @@
         },
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Crystal Palace",
           "away_team": "Hull City",
@@ -2256,7 +2258,7 @@
         },
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Fulham",
           "away_team": "AFC Bournemouth",
@@ -2267,7 +2269,7 @@
         },
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Sunderland",
           "away_team": "Tottenham Hotspur",
@@ -2278,7 +2280,7 @@
         },
         {
           "sport": "Football",
-          "competition": "English Premier League",
+          "competition": "Premier League",
           "stage": "2026-27-english-premier-league",
           "home_team": "Arsenal",
           "away_team": "Manchester City",
@@ -2400,7 +2402,7 @@
       'premier-league': {
         localUrl: 'assets/images/premier_league.webp',
         url: 'https://lh3.googleusercontent.com/d/1iFpk0coXcDWGk-2HmJmFoVTWaL3iYZgI',
-        alt: 'English Premier League'
+        alt: 'Premier League'
       },
       'ucl': {
         localUrl: 'assets/images/uefa_champions_league.webp',
@@ -3014,12 +3016,12 @@
       document.getElementById('editEventDate').value = ev.dateSort || '';
       document.getElementById('editEventTime').value = ev.time || '20:00';
       document.getElementById('editEventPage').value = ev.page || 1;
-      document.getElementById('editEventModal').classList.add('open');
+      document.getElementById('editEventModal').classList.add('show');
     }
 
     function closeEditEventModal() {
       const modal = document.getElementById('editEventModal');
-      if (modal) modal.classList.remove('open');
+      if (modal) modal.classList.remove('show');
     }
 
     function saveEditedEvent() {
@@ -3213,6 +3215,7 @@
           'auto-format-ultra',
           'pdf-export-mode'
         );
+        pageEl.style.zoom = '';
       });
     }
 
@@ -3221,16 +3224,38 @@
       const activePages = Array.from(
         document.querySelectorAll('#posterPagesWrapper .poster-page:not(.all-unchecked)')
       );
+      const A4_MAX_HEIGHT_PX = 1040;
+      const tiers = ['', 'auto-format-medium', 'auto-format-compact', 'auto-format-ultra'];
+
       activePages.forEach(pageEl => {
         const visibleRows = pageEl.querySelectorAll(
           '.match-row:not(.is-unchecked), .custom-note-row:not(.is-unchecked)'
         ).length;
-        if (visibleRows >= 29) {
-          pageEl.classList.add('auto-format-ultra');
-        } else if (visibleRows >= 15) {
-          pageEl.classList.add('auto-format-compact');
-        } else if (visibleRows >= 10) {
-          pageEl.classList.add('auto-format-medium');
+
+        let tierIdx = 0;
+        if (visibleRows >= 29) tierIdx = 3;
+        else if (visibleRows >= 15) tierIdx = 2;
+        else if (visibleRows >= 10) tierIdx = 1;
+
+        const wasExportMode = pageEl.classList.contains('pdf-export-mode');
+        pageEl.classList.add('pdf-export-mode');
+
+        while (tierIdx < tiers.length) {
+          tiers.forEach(t => { if (t) pageEl.classList.remove(t); });
+          if (tiers[tierIdx]) pageEl.classList.add(tiers[tierIdx]);
+          if (pageEl.scrollHeight <= A4_MAX_HEIGHT_PX || tierIdx === tiers.length - 1) {
+            break;
+          }
+          tierIdx++;
+        }
+
+        if (pageEl.scrollHeight > A4_MAX_HEIGHT_PX) {
+          const fitZoom = Math.max(0.55, Number((A4_MAX_HEIGHT_PX / pageEl.scrollHeight).toFixed(3)));
+          pageEl.style.zoom = String(fitZoom);
+        }
+
+        if (!wasExportMode) {
+          pageEl.classList.remove('pdf-export-mode');
         }
       });
       return activePages;
@@ -3486,7 +3511,7 @@
 
       try {
         const espnTeamFeeds = [
-          { path: 'soccer/eng.1', sport: 'Football', competition: 'English Premier League' },
+          { path: 'soccer/eng.1', sport: 'Football', competition: 'Premier League' },
           { path: 'soccer/eng.fa', sport: 'Football', competition: 'FA Cup' },
           { path: 'soccer/eng.league_cup', sport: 'Football', competition: 'EFL Carabao Cup' },
           { path: 'soccer/uefa.champions', sport: 'Football', competition: 'UEFA Champions League' },
@@ -3666,6 +3691,8 @@
       window.addEventListener('afterprint', cleanup);
       window.print();
     }
+
+    window.addEventListener('beforeprint', applyAutoFormatClasses);
 
     window.addEventListener('unhandledrejection', function (event) {
       if (event && event.reason && event.reason.isTrusted) {

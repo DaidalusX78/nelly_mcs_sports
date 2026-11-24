@@ -21,7 +21,7 @@ const TIME_WINDOW_START = '11:30';
 const TIME_WINDOW_END = '23:59';
 
 const TARGET_FOOTBALL_LEAGUES = [
-  { id: 39, name: 'English Premier League', isTournament: false },
+  { id: 39, name: 'Premier League', isTournament: false },
   { id: 45, name: 'FA Cup', isTournament: false },
   { id: 48, name: 'EFL Carabao Cup', isTournament: false },
   { id: 2, name: 'UEFA Champions League', isTournament: false },
@@ -554,7 +554,7 @@ async function fetchEspnTeamSports(fromDate) {
   const events = [];
   const warnings = [];
   const leagues = [
-    { sportPath: 'soccer', leagueSlug: 'eng.1', sport: 'Football', competition: 'English Premier League' },
+    { sportPath: 'soccer', leagueSlug: 'eng.1', sport: 'Football', competition: 'Premier League' },
     { sportPath: 'soccer', leagueSlug: 'eng.fa', sport: 'Football', competition: 'FA Cup' },
     { sportPath: 'soccer', leagueSlug: 'eng.league_cup', sport: 'Football', competition: 'EFL Carabao Cup' },
     { sportPath: 'soccer', leagueSlug: 'uefa.champions', sport: 'Football', competition: 'UEFA Champions League' },
