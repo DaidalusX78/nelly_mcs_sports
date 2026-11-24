@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nelly Mc's Marbella - Sports Coverage (v01.11)</title>
   <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="128x128" href="assets/images/favicon-128x128.png">
+  <link rel="icon" type="image/webp" sizes="32x32" href="assets/images/favicon-32x32.webp">
+  <link rel="icon" type="image/webp" sizes="16x16" href="assets/images/favicon-16x16.webp">
+  <link rel="apple-touch-icon" sizes="128x128" href="assets/images/favicon-128x128.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1347,7 +1347,7 @@
       return `Nelly Mc's Weekly_Sport_${dd}_${mmm}_${yyyy}`;
     }
 
-    const NELLY_MCS_LOGO_LOCAL_URL = "assets/images/Nelly%20Mcs%20Logo.png";
+    const NELLY_MCS_LOGO_LOCAL_URL = "assets/images/Nelly%20Mcs%20Logo.webp";
 
     // Google Drive direct embed URL for Nelly Mc's Marbella logo (File ID: 1zC0Q5wiMXWl9kzH9K-XRnVoGeAk5CAFJ)
     const NELLY_MCS_LOGO_DRIVE_URL = "https://lh3.googleusercontent.com/d/1zC0Q5wiMXWl9kzH9K-XRnVoGeAk5CAFJ";
@@ -1430,7 +1430,7 @@
         },
         "timezone": "CET/CEST (+01:00)",
         "time_filter": "11:30-23:59",
-        "generated_at": "2026-11-23T16:30:00+01:00"
+        "generated_at": "2026-11-24T11:42:00+01:00"
       },
       "events": [
         {
@@ -1442,7 +1442,7 @@
           "venue": "Gtech Community Stadium, Brentford",
           "date": "2026-11-23",
           "time_cet": "21:00",
-          "status": "not_started"
+          "status": "finished"
         },
         {
           "sport": "Football",
@@ -2061,6 +2061,28 @@
           "status": "not_started"
         },
         {
+          "sport": "Rugby Union",
+          "competition": "Nations Championship",
+          "stage": "nations-championship",
+          "home_team": "Italy",
+          "away_team": "Fiji",
+          "venue": "Allianz Stadium, London",
+          "date": "2026-11-27",
+          "time_cet": "17:40",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "Nations Championship",
+          "stage": "nations-championship",
+          "home_team": "Ireland",
+          "away_team": "Australia",
+          "venue": "Allianz Stadium, London",
+          "date": "2026-11-27",
+          "time_cet": "21:10",
+          "status": "not_started"
+        },
+        {
           "sport": "Football",
           "competition": "English Premier League",
           "stage": "2026-27-english-premier-league",
@@ -2091,6 +2113,28 @@
           "venue": "Portman Road, Ipswich",
           "date": "2026-11-28",
           "time_cet": "18:30",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "Nations Championship",
+          "stage": "nations-championship",
+          "home_team": "Wales",
+          "away_team": "Japan",
+          "venue": "Allianz Stadium, London",
+          "date": "2026-11-28",
+          "time_cet": "14:10",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "Nations Championship",
+          "stage": "nations-championship",
+          "home_team": "England",
+          "away_team": "New Zealand",
+          "venue": "Allianz Stadium, London",
+          "date": "2026-11-28",
+          "time_cet": "17:40",
           "status": "not_started"
         },
         {
@@ -2169,6 +2213,28 @@
           "status": "not_started"
         },
         {
+          "sport": "Rugby Union",
+          "competition": "Nations Championship",
+          "stage": "nations-championship",
+          "home_team": "Scotland",
+          "away_team": "Argentina",
+          "venue": "Allianz Stadium, London",
+          "date": "2026-11-29",
+          "time_cet": "14:10",
+          "status": "not_started"
+        },
+        {
+          "sport": "Rugby Union",
+          "competition": "Nations Championship",
+          "stage": "nations-championship",
+          "home_team": "France",
+          "away_team": "South Africa",
+          "venue": "Allianz Stadium, London",
+          "date": "2026-11-29",
+          "time_cet": "17:40",
+          "status": "not_started"
+        },
+        {
           "sport": "Formula One",
           "competition": "Qatar Grand Prix",
           "stage": "Race",
@@ -2192,9 +2258,11 @@
         page: ev.sport === 'Football' ? 1 : 2,
         sport: ev.sport,
         competition:
-          ev.sport === 'Rugby Union' || ev.sport === 'GAA'
+          ev.sport === 'GAA' && ev.stage
             ? `${ev.competition} — ${ev.stage}`
-            : ev.competition,
+            : (ev.sport === 'Rugby Union' && ev.stage && !/^[a-z0-9-]+$/.test(ev.stage) && ev.stage !== 'Fixture' && ev.stage !== 'Matchday'
+                ? `${ev.competition} — ${ev.stage}`
+                : ev.competition),
         badgeType: getBadgeTypeForSport(ev.sport, ev.competition),
         dateSort: ev.date,
         dateDisplay: formatPosterDate(ev.date),
@@ -2255,59 +2323,59 @@
 
     const DRIVE_COMPETITION_LOGOS = {
       'premier-league': {
-        localUrl: 'assets/images/premier_league.png',
+        localUrl: 'assets/images/premier_league.webp',
         url: 'https://lh3.googleusercontent.com/d/1iFpk0coXcDWGk-2HmJmFoVTWaL3iYZgI',
         alt: 'English Premier League'
       },
       'ucl': {
-        localUrl: 'assets/images/uefa_champions_league.png',
+        localUrl: 'assets/images/uefa_champions_league.webp',
         url: 'https://lh3.googleusercontent.com/d/1n7n8nVOfY-GXhXw6LFDyjhqgS-98Bjaq',
         alt: 'UEFA Champions League'
       },
       'uel': {
-        localUrl: 'assets/images/uefa_europa_league.png',
+        localUrl: 'assets/images/uefa_europa_league.webp',
         url: 'https://lh3.googleusercontent.com/d/1EWRWSi0MSyfk6hP57UfB1-NhuDfPoPcx',
         alt: 'UEFA Europa League'
       },
       'uecl': {
-        localUrl: 'assets/images/uefa_conference_league.png',
+        localUrl: 'assets/images/uefa_conference_league.webp',
         url: 'https://lh3.googleusercontent.com/d/1a63WPGzFB4SEh1zz1LFJcZilagk2SgAF',
         alt: 'UEFA Conference League'
       },
       'scottish-premiership': {
-        localUrl: 'assets/images/scottish_premier_league.png',
+        localUrl: 'assets/images/scottish_premier_league.webp',
         url: 'https://lh3.googleusercontent.com/d/12aykUAPF93Fiyved-kYL6_EK3qwopu3n',
         alt: 'Scottish Premiership'
       },
       'nations-league': {
-        localUrl: 'assets/images/uefa_nations_league.png',
+        localUrl: 'assets/images/uefa_nations_league.webp',
         url: 'https://lh3.googleusercontent.com/d/139YSIzxtiU8UVqcdHJmZLRURgIEGPakw',
         alt: 'UEFA Nations League'
       },
       'fa-cup': {
-        localUrl: 'assets/images/fa_cup.png',
+        localUrl: 'assets/images/fa_cup.webp',
         alt: 'FA Cup'
       },
       'carabao-cup': {
-        localUrl: 'assets/images/league_cup_carabao.png',
+        localUrl: 'assets/images/league_cup_carabao.webp',
         alt: 'EFL Carabao Cup'
       },
       'efl-championship': {
-        localUrl: 'assets/images/efl_championship.png',
+        localUrl: 'assets/images/efl_championship.webp',
         alt: 'EFL Championship'
       },
       'six-nations': {
-        localUrl: 'assets/images/6_nations.png',
+        localUrl: 'assets/images/6_nations.webp',
         url: 'https://lh3.googleusercontent.com/d/1_r9Knrrcq3DMm9PzFeVBl31PwSaX9TdK',
         alt: 'Six Nations Rugby'
       },
       'rugby-champions-cup': {
-        localUrl: 'assets/images/rugby_champions_cup.png',
+        localUrl: 'assets/images/rugby_champions_cup.webp',
         url: 'https://lh3.googleusercontent.com/d/1upl9MPk_0Bsh-E_haAGPjrsJBpXA1AfY',
         alt: 'European Rugby Champions Cup'
       },
       'urc': {
-        localUrl: 'assets/images/united_rugby_championship.png',
+        localUrl: 'assets/images/united_rugby_championship.webp',
         url: 'https://lh3.googleusercontent.com/d/11uhUSb4kf66yUTiiGN_eOsIZsxHfgYDY',
         alt: 'United Rugby Championship'
       },
@@ -2324,30 +2392,30 @@
         alt: 'DP World Tour'
       },
       'pga-championship': {
-        localUrl: 'assets/images/pga_championship.png',
+        localUrl: 'assets/images/pga_championship.webp',
         alt: 'PGA Championship'
       },
       'golf-usopen': {
-        localUrl: 'assets/images/us_open_golf_logo.png',
+        localUrl: 'assets/images/us_open_golf_logo.webp',
         alt: 'U.S. Open Golf'
       },
       'golf-masters': {
-        localUrl: 'assets/images/golf_masters.png',
+        localUrl: 'assets/images/golf_masters.webp',
         url: 'https://lh3.googleusercontent.com/d/1gscNt48Ao372hQaU7VmBGZpuvEo1jU0c',
         alt: 'The Masters'
       },
       'golf-theopen': {
-        localUrl: 'assets/images/golf_theopen.png',
+        localUrl: 'assets/images/golf_theopen.webp',
         url: 'https://lh3.googleusercontent.com/d/1tRyPp31ehatAeMhyQ1ASn5wfiJpD_EHS',
         alt: 'The Open Championship'
       },
       'gaa': {
-        localUrl: 'assets/images/gaa.png',
+        localUrl: 'assets/images/gaa.webp',
         url: 'https://lh3.googleusercontent.com/d/19D5kgWD9m8CGpK-C-WwvM90QFY0bRsgP',
         alt: 'GAA'
       },
       'f1': {
-        localUrl: 'assets/images/f1.png',
+        localUrl: 'assets/images/f1.webp',
         url: 'https://lh3.googleusercontent.com/d/15vmMNAwfo8A2nrXFE-6RZBs5V4U2rkJE',
         alt: 'Formula One'
       },
@@ -2356,7 +2424,7 @@
         alt: 'Cheltenham Festival'
       },
       'punchestown': {
-        localUrl: 'assets/images/punchestown.svg',
+        localUrl: 'assets/images/punchestown.webp',
         alt: 'Punchestown Festival'
       }
     };
@@ -3264,6 +3332,7 @@
           { path: 'soccer/fifa.world', sport: 'Football', competition: 'FIFA World Cup' },
           { path: 'soccer/uefa.euro', sport: 'Football', competition: 'UEFA European Championship' },
           { path: 'rugby/289234', sport: 'Rugby Union', competition: 'Rugby Union Internationals' },
+          { path: 'rugby/17567', sport: 'Rugby Union', competition: 'Nations Championship' },
           { path: 'rugby/180659', sport: 'Rugby Union', competition: 'Six Nations' },
           { path: 'rugby/270557', sport: 'Rugby Union', competition: 'United Rugby Championship' },
           { path: 'rugby/271937', sport: 'Rugby Union', competition: 'European Rugby Champions Cup' },

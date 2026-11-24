@@ -30,8 +30,7 @@ jobs:
       - name: Fetch weekly sports and bump HTML poster version
         env:
           API_SPORTS_KEY: ${{ secrets.API_SPORTS_KEY }}
-          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
-          RAPIDAPI_DARTS_HOST: ${{ secrets.RAPIDAPI_DARTS_HOST || 'darts-api.p.rapidapi.com' }}
+          THESPORTSDB_API_KEY: ${{ secrets.THESPORTSDB_API_KEY || '123' }}
           GAA_ECAL_WIDGET_URL: ${{ secrets.GAA_ECAL_WIDGET_URL }}
           GAA_ICS_URLS: ${{ secrets.GAA_ICS_URLS }}
           FROM_DATE: ${{ github.event.inputs.from_date }}

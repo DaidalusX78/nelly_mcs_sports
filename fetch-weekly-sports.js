@@ -33,6 +33,7 @@ const TARGET_FOOTBALL_LEAGUES = [
 
 const RUGBY_INCLUDE_KEYWORDS = [
   'six nations',
+  'nations championship',
   'united rugby championship',
   'champions cup',
   'autumn nations',
@@ -363,6 +364,7 @@ async function fetchApiFootball(fromDate, toDate, apiKey) {
 function mapRugbyLeagueName(leagueName = '') {
   const low = leagueName.toLowerCase();
   if (low.includes('six nations')) return 'Six Nations';
+  if (low.includes('nations championship')) return 'Nations Championship';
   if (low.includes('united rugby championship') || low === 'urc') return 'United Rugby Championship';
   if (low.includes('champions cup')) return 'European Rugby Champions Cup';
   if (low.includes('autumn nations')) return 'Autumn Nations Series';
@@ -559,6 +561,7 @@ async function fetchEspnTeamSports(fromDate) {
     { sportPath: 'soccer', leagueSlug: 'fifa.world', sport: 'Football', competition: 'FIFA World Cup' },
     { sportPath: 'soccer', leagueSlug: 'uefa.euro', sport: 'Football', competition: 'UEFA European Championship' },
     { sportPath: 'rugby', leagueSlug: '289234', sport: 'Rugby Union', competition: 'Rugby Union Internationals' },
+    { sportPath: 'rugby', leagueSlug: '17567', sport: 'Rugby Union', competition: 'Nations Championship' },
     { sportPath: 'rugby', leagueSlug: '180659', sport: 'Rugby Union', competition: 'Six Nations' },
     { sportPath: 'rugby', leagueSlug: '270557', sport: 'Rugby Union', competition: 'United Rugby Championship' },
     { sportPath: 'rugby', leagueSlug: '271937', sport: 'Rugby Union', competition: 'European Rugby Champions Cup' },
@@ -757,63 +760,58 @@ async function fetchGaaEcalAndIcs(fromDate, toDate, icsUrlsRaw, widgetUrl, userA
 }
 
 // ---------------------------------------------------------------------------
-// 5. RapidAPI Darts (Sportbex Darts API)
+// 5. TheSportsDB Darts (v1 JSON API)
 // ---------------------------------------------------------------------------
 
-async function fetchRapidApiDarts(fromDate, toDate, rapidApiKey, rapidApiHost) {
+async function fetchTheSportsDbDarts(fromDate, toDate, apiKey = '123') {
   const events = [];
   const warnings = [];
-  if (!isRealApiKey(rapidApiKey)) return { events, warnings };
+  const key = (apiKey || '123').trim();
 
-  const headers = {
-    'x-rapidapi-key': rapidApiKey,
-    'x-rapidapi-host': rapidApiHost
-  };
-
-  try {
-    const compData = await fetchJson(`https://${rapidApiHost}/competitions/3503`, headers);
-    const competitions = Array.isArray(compData)
-      ? compData
-      : compData?.data || compData?.competitions || [];
-
-    for (const c of competitions) {
-      const compId = c?.competition?.id || c?.id;
-      const compName = c?.competition?.name || c?.name || 'PDC Darts';
-      if (!compId) continue;
-
-      try {
-        const evData = await fetchJson(`https://${rapidApiHost}/event/3503/${compId}`, headers);
-        const list = Array.isArray(evData) ? evData : evData?.data || evData?.events || [];
-
-        for (const item of list) {
-          const evObj = item?.event || item;
-          const dateIso = evObj?.openDate || evObj?.startDate || evObj?.date;
-          const madrid = dateIso ? toMadridDateTime(dateIso) : null;
-          if (!madrid || !isWithinWeekAndWindow(madrid.date, madrid.time_cet, fromDate, toDate)) {
-            continue;
-          }
-
-          const title = evObj?.name || compName;
-          const vsParts = title.split(/\s+(?:v|vs\.?)\s+/i);
-          events.push({
-            sport: 'Darts',
-            competition: compName,
-            stage: 'Match',
-            home_team: vsParts.length === 2 ? vsParts[0].trim() : title,
-            away_team: vsParts.length === 2 ? vsParts[1].trim() : '',
-            venue: 'TBC',
-            date: madrid.date,
-            time_cet: madrid.time_cet,
-            status: 'not_started'
-          });
-        }
-      } catch (innerErr) {
-        warnings.push(`RapidAPI Darts event (${compName}) failed: ${innerErr.message}`);
-      }
-    }
-  } catch (err) {
-    warnings.push(`RapidAPI Darts (${rapidApiHost}) unavailable: ${err.message}`);
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    days.push(addDaysISO(fromDate, i));
   }
+
+  await mapWithConcurrency(days, 4, async day => {
+    const url = `https://www.thesportsdb.com/api/v1/json/${encodeURIComponent(key)}/eventsday.php?d=${day}&s=Darts`;
+    try {
+      const data = await fetchJson(url);
+      for (const item of data?.events || []) {
+        if (String(item.strPostponed || '').toLowerCase() === 'yes') continue;
+
+        let rawTs = item.strTimestamp || (item.dateEvent && item.strTime ? `${item.dateEvent}T${item.strTime}` : '');
+        if (rawTs && !/[zZ]|[+-]\d{2}:?\d{2}$/.test(rawTs)) {
+          rawTs += 'Z';
+        }
+        const madrid = rawTs ? toMadridDateTime(rawTs) : null;
+        if (!madrid || !isWithinWeekAndWindow(madrid.date, madrid.time_cet, fromDate, toDate)) {
+          continue;
+        }
+
+        const compName = item.strLeague || 'PDC Darts';
+        const title = item.strEvent || compName;
+        const vsParts = title.split(/\s+(?:v|vs\.?)\s+/i);
+        const home = item.strHomeTeam || (vsParts.length === 2 ? vsParts[0].trim() : title);
+        const away = item.strAwayTeam || (vsParts.length === 2 ? vsParts[1].trim() : '');
+        const venue = [item.strVenue, item.strCity, item.strCountry].filter(Boolean).join(', ') || 'TBC';
+
+        events.push({
+          sport: 'Darts',
+          competition: compName,
+          stage: item.intRound ? `Round ${item.intRound}` : 'Match',
+          home_team: home,
+          away_team: away,
+          venue,
+          date: madrid.date,
+          time_cet: madrid.time_cet,
+          status: normalizeApiSportsStatus(item.strStatus)
+        });
+      }
+    } catch (err) {
+      warnings.push(`TheSportsDB Darts (${day}) failed: ${err.message}`);
+    }
+  });
 
   return { events, warnings };
 }
@@ -1007,9 +1005,9 @@ function updateHtmlFile({ targetInfo, bump, fromDate, toDate, scheduleData }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nelly Mc's Marbella - Weekly Sports Coverage (${activeVersionTag})</title>
   <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="128x128" href="assets/images/favicon-128x128.png">
+  <link rel="icon" type="image/webp" sizes="32x32" href="assets/images/favicon-32x32.webp">
+  <link rel="icon" type="image/webp" sizes="16x16" href="assets/images/favicon-16x16.webp">
+  <link rel="apple-touch-icon" sizes="128x128" href="assets/images/favicon-128x128.webp">
   <script>
     window.location.replace('${destFilename}');
   </script>
@@ -1046,8 +1044,7 @@ async function main() {
   const toDate = addDaysISO(fromDate, 6);
 
   const apiSportsKey = process.env.API_SPORTS_KEY || '';
-  const rapidApiKey = process.env.RAPIDAPI_KEY || '';
-  const rapidApiDartsHost = process.env.RAPIDAPI_DARTS_HOST || 'darts-api.p.rapidapi.com';
+  const theSportsDbKey = process.env.THESPORTSDB_API_KEY || '123';
   const gaaEcalWidgetUrl = process.env.GAA_ECAL_WIDGET_URL || '';
   const gaaIcsUrls = process.env.GAA_ICS_URLS || '';
   const userAgent = process.env.USER_AGENT || 'NellyMcsMarbellaSportsFetcher/1.0 (+https://nellymcs.com)';
@@ -1075,13 +1072,13 @@ async function main() {
     inactiveNotes.push({ competition: 'API-Sports (Football & Rugby Union)', reason: msg });
   }
 
-  console.log('[Fetch]  Jolpica F1, ESPN 7-Day Football/Rugby/Golf, GAA eCal/.ics & RapidAPI Darts...');
+  console.log('[Fetch]  Jolpica F1, ESPN 7-Day Football/Rugby/Golf, GAA eCal/.ics & TheSportsDB Darts...');
   const [f1Res, golfRes, espnTeamRes, gaaRes, dartsRes] = await Promise.all([
     fetchJolpicaF1(fromDate, toDate, userAgent),
     fetchEspnGolf(fromDate, toDate),
     fetchEspnTeamSports(fromDate),
     fetchGaaEcalAndIcs(fromDate, toDate, gaaIcsUrls, gaaEcalWidgetUrl, userAgent),
-    fetchRapidApiDarts(fromDate, toDate, rapidApiKey, rapidApiDartsHost)
+    fetchTheSportsDbDarts(fromDate, toDate, theSportsDbKey)
   ]);
 
   allEvents.push(...f1Res.events, ...golfRes.events, ...espnTeamRes.events, ...gaaRes.events, ...dartsRes.events);
