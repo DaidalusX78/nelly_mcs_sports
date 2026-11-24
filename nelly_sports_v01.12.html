@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nelly Mc's Marbella - Sports Coverage (v01.11)</title>
+  <title>Nelly Mc's Marbella - Sports Coverage (v01.12)</title>
   <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
   <link rel="icon" type="image/webp" sizes="32x32" href="assets/images/favicon-32x32.webp">
   <link rel="icon" type="image/webp" sizes="16x16" href="assets/images/favicon-16x16.webp">
@@ -472,20 +472,24 @@
       font-family: 'Raleway', sans-serif;
     }
 
-    .close-modal-btn {
+    .close-modal-btn,
+    .help-modal-close {
       background: transparent;
       border: none;
-      font-size: 1.6rem;
-      font-weight: 400;
       color: #64748B;
       cursor: pointer;
-      line-height: 1;
-      padding: 4px 8px;
-      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.15s ease;
     }
 
-    .close-modal-btn:hover {
+    .close-modal-btn:hover,
+    .help-modal-close:hover {
       color: #BE123C;
       background: #FFE4E6;
     }
@@ -913,15 +917,10 @@
     }
 
     .poster-page.auto-format-compact .day-group {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 18px;
-      row-gap: 4px;
       margin-bottom: 14px;
     }
 
     .poster-page.auto-format-compact .day-title {
-      grid-column: 1 / -1;
       font-size: 1rem;
       margin-bottom: 4px;
     }
@@ -990,15 +989,10 @@
     }
 
     .poster-page.auto-format-ultra .day-group {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 14px;
-      row-gap: 2px;
       margin-bottom: 8px;
     }
 
     .poster-page.auto-format-ultra .day-title {
-      grid-column: 1 / -1;
       font-size: 0.88rem;
       margin-bottom: 2px;
     }
@@ -1062,6 +1056,12 @@
     }
 
     /* Print / PDF Export Optimization */
+    .pdf-export-mode .match-row.highlight-team .teams,
+    .pdf-export-mode .match-row.highlight-team .kickoff-time {
+      color: rgb(59, 156, 164);
+      font-weight: 700;
+    }
+
     @media print {
       @page {
         size: A4 portrait;
@@ -1089,6 +1089,12 @@
       .match-row,
       .custom-note-row {
         border-color: transparent !important;
+      }
+
+      .match-row.highlight-team .teams,
+      .match-row.highlight-team .kickoff-time {
+        color: rgb(59, 156, 164) !important;
+        font-weight: 700 !important;
       }
 
       #posterPagesWrapper {
@@ -1301,9 +1307,13 @@
             </svg>
           </div>
           <h3>Nelly Mc's Sports Planner — How-To Guide</h3>
-          <span class="version-badge" id="helpModalVersionBadge">v01.11</span>
+          <span class="version-badge" id="helpModalVersionBadge">v01.12</span>
         </div>
-        <button type="button" class="close-modal-btn" onclick="closeHelpModal()" aria-label="Close guide">&times;</button>
+        <button type="button" class="close-modal-btn" onclick="closeHelpModal()" aria-label="Close guide">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
       </div>
       <div class="help-modal-body">
         <div class="guide-step">
@@ -1352,7 +1362,11 @@
         <div class="help-modal-title-wrap">
           <h3 class="help-modal-title">Edit Fixture Details</h3>
         </div>
-        <button type="button" class="help-modal-close" onclick="closeEditEventModal()" aria-label="Close edit dialog">&times;</button>
+        <button type="button" class="help-modal-close" onclick="closeEditEventModal()" aria-label="Close edit dialog">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
       </div>
       <div class="help-modal-body" style="gap: 12px;">
         <input type="hidden" id="editEventId" />
@@ -1401,11 +1415,11 @@
 
   <!-- Designer Credit (HTML View Only, Excluded from PDF & Print) -->
   <footer class="designer-credit no-export">
-    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.11</span>
+    Created and Designed by Marc Bailey &middot; <span id="footerVersionLabel">v01.12</span>
   </footer>
 
   <script>
-    const APP_VERSION = 'v01.11';
+    const APP_VERSION = 'v01.12';
     // Week start date (Monday) used for dynamic export filenames: dd_mmm_yyyy
     let WEEK_START_DATE = new Date(2026, 10, 23); // 2026-11-23
 
@@ -2651,6 +2665,27 @@
         });
     }
 
+    const UEFA_CLUB_COMPETITIONS = ['champions league', 'europa league', 'conference league'];
+    const ENGLISH_SCOTTISH_CLUBS = [
+      'arsenal', 'aston villa', 'bournemouth', 'afc bournemouth', 'brentford', 'brighton',
+      'burnley', 'chelsea', 'crystal palace', 'everton', 'fulham', 'ipswich', 'leeds',
+      'leicester', 'liverpool', 'manchester city', 'man city', 'manchester united', 'man utd',
+      'newcastle', 'nottingham forest', 'southampton', 'sunderland', 'tottenham', 'spurs',
+      'west ham', 'wolverhampton', 'wolves',
+      'aberdeen', 'celtic', 'dundee', 'heart of midlothian', 'hearts', 'hibernian',
+      'kilmarnock', 'motherwell', 'rangers', 'ross county', 'st johnstone', 'st mirren'
+    ];
+    const PRIORITY_CLUBS = ['liverpool', 'manchester united', 'man utd', 'arsenal'];
+
+    function shouldHighlightEvent(ev) {
+      const comp = String(ev.competition || '').toLowerCase();
+      const title = String(ev.title || '').toLowerCase();
+      if (UEFA_CLUB_COMPETITIONS.some(c => comp.includes(c))) {
+        return ENGLISH_SCOTTISH_CLUBS.some(club => title.includes(club));
+      }
+      return PRIORITY_CLUBS.some(club => title.includes(club));
+    }
+
     /**
      * Escape HTML special characters before injecting text or attributes into DOM templates
      */
@@ -2769,8 +2804,9 @@
               const safeTitle = escapeHtml(ev.title);
               const safeComp = escapeHtml(ev.competition);
               const safeTime = escapeHtml(ev.time);
+              const highlightClass = shouldHighlightEvent(ev) ? 'highlight-team' : '';
               html += `
-                <div class="match-row ${ev.checked ? '' : 'is-unchecked'}" data-id="${safeId}">
+                <div class="match-row ${ev.checked ? '' : 'is-unchecked'} ${highlightClass}" data-id="${safeId}">
                   <div class="row-left">
                     <input
                       type="checkbox"
@@ -3224,8 +3260,13 @@
       const activePages = Array.from(
         document.querySelectorAll('#posterPagesWrapper .poster-page:not(.all-unchecked)')
       );
+      if (activePages.length === 0) return activePages;
+
       const A4_MAX_HEIGHT_PX = 1040;
       const tiers = ['', 'auto-format-medium', 'auto-format-compact', 'auto-format-ultra'];
+
+      let maxTierIdx = 0;
+      let minZoom = 1;
 
       activePages.forEach(pageEl => {
         const visibleRows = pageEl.querySelectorAll(
@@ -3249,15 +3290,25 @@
           tierIdx++;
         }
 
+        if (tierIdx > maxTierIdx) maxTierIdx = tierIdx;
+
         if (pageEl.scrollHeight > A4_MAX_HEIGHT_PX) {
           const fitZoom = Math.max(0.55, Number((A4_MAX_HEIGHT_PX / pageEl.scrollHeight).toFixed(3)));
-          pageEl.style.zoom = String(fitZoom);
+          if (fitZoom < minZoom) minZoom = fitZoom;
         }
 
         if (!wasExportMode) {
           pageEl.classList.remove('pdf-export-mode');
         }
       });
+
+      // Apply the same tier and zoom uniformly across ALL active pages so they look consistent
+      activePages.forEach(pageEl => {
+        tiers.forEach(t => { if (t) pageEl.classList.remove(t); });
+        if (tiers[maxTierIdx]) pageEl.classList.add(tiers[maxTierIdx]);
+        pageEl.style.zoom = minZoom < 1 ? String(minZoom) : '';
+      });
+
       return activePages;
     }
 
